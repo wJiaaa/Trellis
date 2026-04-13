@@ -20,15 +20,13 @@
 
 ### Step 0: Initialize Developer Identity (First Time Only)
 
-> **Multi-developer support**: Each developer/Agent needs to initialize their identity first
-
 ```bash
 # Check if already initialized
 python3 ./.trellis/scripts/get_developer.py
 
 # If not initialized, run:
 python3 ./.trellis/scripts/init_developer.py <your-name>
-# Example: python3 ./.trellis/scripts/init_developer.py cursor-agent
+# Example: python3 ./.trellis/scripts/init_developer.py claude-agent
 ```
 
 This creates:
@@ -37,8 +35,9 @@ This creates:
 
 **Naming suggestions**:
 - Human developers: Use your name, e.g., `john-doe`
-- Cursor AI: `cursor-agent` or `cursor-<task>`
 - Claude Code: `claude-agent` or `claude-<task>`
+- OpenCode: `opencode-agent` or `opencode-<task>`
+- Codex: `codex-agent` or `codex-<task>`
 
 ### Step 1: Understand Current Context
 
@@ -117,7 +116,7 @@ Based on your task, follow the Pre-Development Checklist in the relevant spec `i
 |   +-- {MM}-{DD}-{name}/
 |       +-- task.json
 |-- spec/                # [!] MUST READ before coding
-|   |-- <package>/       # Per-package specs (e.g., cli/, docs-site/)
+|   |-- <package>/       # Per-package specs (e.g., cli/)
 |   |   +-- <layer>/     # Per-layer (e.g., backend/, frontend/, unit-test/)
 |   |       |-- index.md # Start here — Pre-Dev Checklist & Quality Check
 |   |       +-- *.md     # Topic-specific docs
@@ -280,7 +279,7 @@ workspace/
 **Structure** (Package-scoped, auto-discoverable):
 ```
 spec/
-|-- <package>/          # One per package (e.g., cli/, docs-site/)
+|-- <package>/          # One per package (e.g., cli/)
 |   |-- <layer>/        # One per layer (e.g., backend/, frontend/, unit-test/)
 |   |   |-- index.md    # Start here — has Pre-Dev Checklist & Quality Check
 |   |   +-- *.md        # Topic-specific guideline docs
@@ -400,6 +399,6 @@ Following this workflow ensures:
 - [OK] Consistent code quality
 - [OK] Trackable progress
 - [OK] Knowledge accumulation in spec docs
-- [OK] Transparent team collaboration
+- [OK] Clear single-user workflow continuity
 
 **Core Philosophy**: Read before write, follow standards, record promptly, capture learnings

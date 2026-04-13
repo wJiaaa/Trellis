@@ -113,11 +113,11 @@ When a CLI auto-detects a mode by probing a remote resource (e.g., checking if `
 
 ### After implementing:
 - [ ] Trace every path from probe result to the mode-decision branch — no fallthrough
-- [ ] External format contracts (giget URI, raw URLs) are tested or at least documented as comments
+- [ ] External format contracts are tested or at least documented as comments
 - [ ] When reconstructing a composite identifier from parsed parts, verify **all** fields are included and in the **correct position** (e.g., `provider:repo/path#ref` not `provider:repo#ref/path`)
 - [ ] Verify that **action functions** called after a shortcut don't internally use the old catch-all fetch — they must use the probe-quality variant when error distinction matters
 
-**Real-world example**: Custom registry flow had 8 bugs across 3 review rounds: (1) probe only ran in interactive mode, (2) transient errors fell through to wrong mode, (3) giget URI had `#ref` in wrong position, (4) prefetched templates leaked across source switches, (5) `--template` shortcut bypassed probe but `downloadTemplateById` internally used catch-all `fetchTemplateIndex`, turning timeouts into "Template not found".
+**Real-world example**: A legacy registry flow had multiple bugs across several review rounds: probes only ran in one mode, transient errors fell through to the wrong branch, and shortcut paths bypassed the higher-quality validation path.
 
 ---
 

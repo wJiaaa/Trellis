@@ -20,15 +20,13 @@
 
 ### Step 0: Initialize Developer Identity (First Time Only)
 
-> **Multi-developer support**: Each developer/Agent needs to initialize their identity first
-
 ```bash
 # Check if already initialized
 python3 ./.trellis/scripts/get_developer.py
 
 # If not initialized, run:
 python3 ./.trellis/scripts/init_developer.py <your-name>
-# Example: python3 ./.trellis/scripts/init_developer.py cursor-agent
+# Example: python3 ./.trellis/scripts/init_developer.py claude-agent
 ```
 
 This creates:
@@ -37,9 +35,9 @@ This creates:
 
 **Naming suggestions**:
 - Human developers: Use your name, e.g., `john-doe`
-- Cursor AI: `cursor-agent` or `cursor-<task>`
 - Claude Code: `claude-agent` or `claude-<task>`
-- iFlow cli: `iflow-agent` or `iflow-<task>`
+- OpenCode: `opencode-agent` or `opencode-<task>`
+- Codex: `codex-agent` or `codex-<task>`
 
 ### Step 1: Understand Current Context
 
@@ -411,6 +409,6 @@ Following this workflow ensures:
 - [OK] Consistent code quality
 - [OK] Trackable progress
 - [OK] Knowledge accumulation in spec docs
-- [OK] Transparent team collaboration
+- [OK] Clear single-user workflow continuity
 
 **Core Philosophy**: Read before write, follow standards, record promptly, capture learnings

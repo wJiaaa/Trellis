@@ -66,7 +66,6 @@ const EXPECTED_COMMAND_NAMES = [
   "create-command",
   "finish-work",
   "integrate-skill",
-  "onboard",
   "parallel",
   "record-session",
   "start",

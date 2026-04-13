@@ -33,7 +33,7 @@ For each guideline file:
 3. List **forbidden patterns** and why
 4. Add **common mistakes** your team has made
 
-The goal is to help AI assistants and new team members understand how YOUR project works.
+The goal is to help AI assistants and future maintainers understand how YOUR project works.
 
 ---
 

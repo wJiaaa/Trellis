@@ -6,7 +6,7 @@
 
 ## Overview
 
-This project is a **TypeScript CLI tool** using ES modules. The source code follows a **dogfooding architecture** - Trellis uses its own configuration files (`.cursor/`, `.claude/`, `.trellis/`) as templates for new projects.
+This project is a **TypeScript CLI tool** using ES modules. The source code follows a **dogfooding architecture** - Trellis uses its own configuration files (`.claude/`, `.opencode/`, `.codex/`, `.trellis/`) as templates for new projects.
 
 ---
 
@@ -22,9 +22,8 @@ src/
 │   ├── index.ts         # Platform registry (PLATFORM_FUNCTIONS, derived helpers)
 │   ├── shared.ts        # Shared utilities (resolvePlaceholders)
 │   ├── claude.ts        # Claude Code configurator
-│   ├── cursor.ts        # Cursor configurator
-│   ├── iflow.ts         # iFlow CLI configurator
 │   ├── opencode.ts      # OpenCode configurator
+│   ├── codex.ts         # Codex configurator
 │   └── workflow.ts      # Creates .trellis/ structure
 ├── constants/           # Shared constants and paths
 │   └── paths.ts         # Path constants (centralized)
@@ -42,7 +41,6 @@ src/
 │   ├── compare-versions.ts # Semver comparison with prerelease support
 │   ├── file-writer.ts   # File writing with conflict handling
 │   ├── project-detector.ts # Project type detection
-│   ├── template-fetcher.ts # Remote template download from GitHub
 │   └── template-hash.ts # Template hash tracking for update detection
 └── index.ts             # Package entry point (exports public API)
 ```
@@ -52,17 +50,23 @@ src/
 These directories are copied to `dist/` during build and used as templates:
 
 ```
-.cursor/                 # Cursor configuration (dogfooded)
-├── commands/            # Slash commands for Cursor
-│   ├── start.md
-│   ├── finish-work.md
-│   └── ...
-
 .claude/                 # Claude Code configuration (dogfooded)
 ├── commands/            # Slash commands
 ├── agents/              # Multi-agent pipeline agents
 ├── hooks/               # Context injection hooks
 └── settings.json        # Hook configuration
+
+.opencode/               # OpenCode configuration (dogfooded)
+├── commands/            # Slash commands
+├── agents/              # Agent definitions
+├── plugins/             # Context injection plugins
+└── package.json         # Plugin dependencies
+
+.codex/                  # Codex configuration (dogfooded)
+├── agents/              # Custom agents
+├── hooks/               # Session hooks
+├── skills/              # Codex-only skills
+└── config.toml          # Project config
 
 .trellis/                # Trellis workflow (partially dogfooded)
 ├── scripts/             # Python scripts (dogfooded)
@@ -91,8 +95,9 @@ Files that are copied directly from Trellis project to user projects:
 
 | Source | Destination | Description |
 |--------|-------------|-------------|
-| `.cursor/` | `.cursor/` | Entire directory copied |
 | `.claude/` | `.claude/` | Entire directory copied |
+| `.opencode/` | `.opencode/` | Entire directory copied |
+| `.codex/` | `.codex/` | Entire directory copied |
 | `.trellis/scripts/` | `.trellis/scripts/` | All scripts copied |
 | `.trellis/workflow.md` | `.trellis/workflow.md` | Direct copy |
 | `.trellis/.gitignore` | `.trellis/.gitignore` | Direct copy |
@@ -117,8 +122,9 @@ pnpm build
 
 # Result:
 dist/
-├── .cursor/           # From project root .cursor/
 ├── .claude/           # From project root .claude/
+├── .opencode/         # From project root .opencode/
+├── .codex/            # From project root .codex/
 ├── .trellis/          # From project root .trellis/ (filtered)
 │   ├── scripts/       # All scripts
 │   ├── workspace/
@@ -152,10 +158,10 @@ dist/
 Configurators use `cpSync` for direct directory copy (dogfooding):
 
 ```typescript
-// configurators/cursor.ts
-export async function configureCursor(cwd: string): Promise<void> {
-  const sourcePath = getCursorSourcePath(); // dist/.cursor/ or .cursor/
-  const destPath = path.join(cwd, ".cursor");
+// configurators/claude.ts
+export async function configureClaude(cwd: string): Promise<void> {
+  const sourcePath = getClaudeSourcePath(); // dist/.claude/ or .claude/
+  const destPath = path.join(cwd, ".claude");
   cpSync(sourcePath, destPath, { recursive: true });
 }
 ```
@@ -206,7 +212,7 @@ Templates use `.txt` extension to:
 - Use `cpSync` for copying entire directories
 - Keep generic templates in `src/templates/markdown/`
 - Use `.md.txt` or `.yaml.txt` for template files
-- Update dogfooding sources (`.cursor/`, `.claude/`, `.trellis/scripts/`) when making changes
+- Update dogfooding sources (`.claude/`, `.opencode/`, `.codex/`, `.trellis/scripts/`) when making changes
 - Always use `python3` explicitly when documenting script invocation (Windows compatibility)
 
 ### DON'T
@@ -220,73 +226,16 @@ Templates use `.txt` extension to:
 
 ## Design Decisions
 
-### Remote Template Download (giget)
+### Local Spec Template Generation
 
-**Context**: Need to download GitHub subdirectories for remote template support.
+**Context**: `trellis init` now always generates local blank spec templates from repository-managed markdown templates.
 
-**Options Considered**:
-1. `degit` / `tiged` - Simple, but no programmatic API
-2. `giget` - TypeScript native, has programmatic API, used by Nuxt/UnJS
-3. Manual GitHub API - Too complex
+**Decision**:
+- no remote downloads during init
+- no registry selection during init
+- no overwrite/append strategy dedicated to downloaded templates
 
-**Decision**: Use `giget` because:
-- TypeScript native with programmatic API
-- Supports GitHub subdirectory: `gh:user/repo/path/to/subdir`
-- Built-in caching for offline support
-- Actively maintained by UnJS ecosystem
-
-**Example**:
-```typescript
-import { downloadTemplate } from "giget";
-
-await downloadTemplate("gh:mindfold-ai/marketplace/specs/electron-fullstack", {
-  dir: destDir,
-  preferOffline: true,
-});
-```
-
-### Directory Conflict Strategy (skip/overwrite/append)
-
-**Context**: When downloading remote templates, target directory may already exist.
-
-**Decision**: Three strategies with `skip` as default:
-- `skip` - Don't download if directory exists (safe default)
-- `overwrite` - Delete existing, download fresh
-- `append` - Only copy files that don't exist (merge)
-
-**Why**: giget doesn't support append natively, so we:
-1. Download to temp directory
-2. Walk and copy missing files only
-3. Clean up temp directory
-
-**Example**:
-```typescript
-// append strategy implementation
-const tempDir = path.join(os.tmpdir(), `trellis-template-${Date.now()}`);
-await downloadTemplate(source, { dir: tempDir });
-await copyMissing(tempDir, destDir);  // Only copy non-existing files
-await fs.promises.rm(tempDir, { recursive: true });
-```
-
-### Extensible Template Type Mapping
-
-**Context**: Currently only `spec` templates, but future needs `skill`, `command`, `full` types.
-
-**Decision**: Use type field + mapping table for extensibility:
-
-```typescript
-const INSTALL_PATHS: Record<string, string> = {
-  spec: ".trellis/spec",
-  skill: ".claude/skills",
-  command: ".claude/commands",
-  full: ".",  // Entire project root
-};
-
-// Usage: auto-detect install path from template type
-const destDir = INSTALL_PATHS[template.type] || INSTALL_PATHS.spec;
-```
-
-**Extensibility**: To add new template type:
-1. Add entry to `INSTALL_PATHS`
-2. Add templates to `index.json` with new type
-3. No code changes needed for download logic
+**Why**:
+- deterministic init behavior
+- no network dependency
+- lower maintenance surface

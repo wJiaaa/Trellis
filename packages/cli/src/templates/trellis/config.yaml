@@ -46,7 +46,7 @@ max_journal_lines: 2000
 #   backend:
 #     path: packages/backend
 #   docs:
-#     path: docs-site
+#     path: packages/docs
 #     type: submodule
 
 # Default package used when --package is not specified.

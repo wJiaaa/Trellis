@@ -24,9 +24,6 @@ max_journal_lines: 2000
 packages:
   cli:
     path: packages/cli
-  docs-site:
-    path: docs-site
-    type: submodule
 
 # Default package used when --package is not specified.
 default_package: cli
@@ -50,16 +47,3 @@ update:
   skip:
     - .claude/commands/
     - .agents/skills/
-    - .cursor/
-
-#-------------------------------------------------------------------------------
-# Task Lifecycle Hooks
-#-------------------------------------------------------------------------------
-
-hooks:
-  after_create:
-    - "python3 .trellis/scripts/hooks/linear_sync.py create"
-  after_start:
-    - "python3 .trellis/scripts/hooks/linear_sync.py start"
-  after_archive:
-    - "python3 .trellis/scripts/hooks/linear_sync.py archive"

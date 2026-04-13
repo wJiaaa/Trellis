@@ -107,18 +107,12 @@ def cmd_create(args: argparse.Namespace) -> int:
         # Inferred: default_package → None (no task.json yet for create)
         package = resolve_package(repo_root=repo_root)
 
-    # Default assignee to current developer
-    assignee = args.assignee
-    if not assignee:
-        assignee = get_developer(repo_root)
-        if not assignee:
-            print(colored("Error: No developer set. Run init_developer.py first or use --assignee", Colors.RED), file=sys.stderr)
-            return 1
+    creator = get_developer(repo_root)
+    if not creator:
+        print(colored("Error: No developer set. Run init_developer.py first", Colors.RED), file=sys.stderr)
+        return 1
 
     ensure_tasks_dir(repo_root)
-
-    # Get current developer as creator
-    creator = get_developer(repo_root) or assignee
 
     # Generate slug if not provided
     slug = args.slug or _slugify(args.title)
@@ -155,7 +149,7 @@ def cmd_create(args: argparse.Namespace) -> int:
         "package": package,
         "priority": args.priority,
         "creator": creator,
-        "assignee": assignee,
+        "assignee": creator,
         "createdAt": today,
         "completedAt": None,
         "branch": None,

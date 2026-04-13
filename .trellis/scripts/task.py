@@ -4,7 +4,7 @@
 Task Management Script for Multi-Agent Pipeline.
 
 Usage:
-    python3 task.py create "<title>" [--slug <name>] [--assignee <dev>] [--priority P0|P1|P2|P3] [--parent <dir>] [--package <pkg>]
+    python3 task.py create "<title>" [--slug <name>] [--priority P0|P1|P2|P3] [--parent <dir>] [--package <pkg>]
     python3 task.py init-context <dir> <type> [--package <pkg>]  # Initialize jsonl files
     python3 task.py add-context <dir> <file> <path> [reason] # Add jsonl entry
     python3 task.py validate <dir>              # Validate jsonl files
@@ -130,17 +130,9 @@ def cmd_list(args: argparse.Namespace) -> int:
     repo_root = get_repo_root()
     tasks_dir = get_tasks_dir(repo_root)
     current_task = get_current_task(repo_root)
-    developer = get_developer(repo_root)
-    filter_mine = args.mine
     filter_status = args.status
 
-    if filter_mine:
-        if not developer:
-            print(colored("Error: No developer set. Run init_developer.py first", Colors.RED), file=sys.stderr)
-            return 1
-        print(colored(f"My tasks (assignee: {developer}):", Colors.BLUE))
-    else:
-        print(colored("All active tasks:", Colors.BLUE))
+    print(colored("Active tasks:", Colors.BLUE))
     print()
 
     # Single pass: collect all tasks via shared iterator
@@ -153,10 +145,6 @@ def cmd_list(args: argparse.Namespace) -> int:
     def _print_task(dir_name: str, indent: int = 0) -> None:
         nonlocal count
         t = all_tasks[dir_name]
-
-        # Apply --mine filter
-        if filter_mine and (t.assignee or "-") != developer:
-            return
 
         # Apply --status filter
         if filter_status and t.status != filter_status:
@@ -175,10 +163,7 @@ def cmd_list(args: argparse.Namespace) -> int:
 
         prefix = "  " * indent + "  - "
 
-        if filter_mine:
-            print(f"{prefix}{dir_name}/ ({t.status}){pkg_tag}{progress}{marker}")
-        else:
-            print(f"{prefix}{dir_name}/ ({t.status}){pkg_tag}{progress} [{colored(t.assignee or '-', Colors.CYAN)}]{marker}")
+        print(f"{prefix}{dir_name}/ ({t.status}){pkg_tag}{progress}{marker}")
         count += 1
 
         # Print children indented
@@ -192,10 +177,7 @@ def cmd_list(args: argparse.Namespace) -> int:
             _print_task(dir_name)
 
     if count == 0:
-        if filter_mine:
-            print("  (no tasks assigned to you)")
-        else:
-            print("  (no active tasks)")
+        print("  (no active tasks)")
 
     print()
     print(f"Total: {count} task(s)")
@@ -281,7 +263,7 @@ Usage:
   python3 task.py archive <task-name>                Archive completed task
   python3 task.py add-subtask <parent> <child>       Link child task to parent
   python3 task.py remove-subtask <parent> <child>    Unlink child from parent
-  python3 task.py list [--mine] [--status <status>]  List tasks
+  python3 task.py list [--status <status>]           List tasks
   python3 task.py list-archive [YYYY-MM]             List archived tasks
 
 Arguments:
@@ -291,7 +273,6 @@ Monorepo options:
   --package <pkg>      Package name (validated against config.yaml packages)
 
 List options:
-  --mine, -m           Show only tasks assigned to current developer
   --status, -s <s>     Filter by status (planning, in_progress, review, completed)
 
 Examples:
@@ -310,8 +291,8 @@ Examples:
   python3 task.py add-subtask parent-task child-task  # Link existing tasks
   python3 task.py remove-subtask parent-task child-task
   python3 task.py list                               # List all active tasks
-  python3 task.py list --mine                        # List my tasks only
-  python3 task.py list --mine --status in_progress   # List my in-progress tasks
+  python3 task.py list                               # List all active tasks
+  python3 task.py list --status in_progress          # List in-progress tasks
 """)
 
 
@@ -331,7 +312,6 @@ def main() -> int:
     p_create = subparsers.add_parser("create", help="Create new task")
     p_create.add_argument("title", help="Task title")
     p_create.add_argument("--slug", "-s", help="Task slug")
-    p_create.add_argument("--assignee", "-a", help="Assignee developer")
     p_create.add_argument("--priority", "-p", default="P2", help="Priority (P0-P3)")
     p_create.add_argument("--description", "-d", help="Task description")
     p_create.add_argument("--parent", help="Parent task directory (establishes subtask link)")
@@ -392,7 +372,6 @@ def main() -> int:
 
     # list
     p_list = subparsers.add_parser("list", help="List tasks")
-    p_list.add_argument("--mine", "-m", action="store_true", help="My tasks only")
     p_list.add_argument("--status", "-s", help="Filter by status")
 
     # add-subtask

@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-<strong>A multi-platform AI coding framework that rules</strong><br/>
-<sub>Supports Claude Code, Cursor, OpenCode, iFlow, Codex, Kilo, Kiro, Gemini CLI, Antigravity, Windsurf, Qoder, CodeBuddy, and GitHub Copilot.</sub>
+<strong>A personal AI coding workflow framework</strong><br/>
+<sub>Supports Claude Code, OpenCode, and Codex.</sub>
 </p>
 
 <p align="center">
@@ -44,8 +44,8 @@
 | **Task-centered workflow** | Keep PRDs, implementation context, review context, and task status in `.trellis/tasks/` so AI work stays structured. |
 | **Parallel agent execution** | Run multiple AI tasks side by side with git worktrees instead of turning one branch into a traffic jam. |
 | **Project memory** | Journals in `.trellis/workspace/` preserve what happened last time, so each new session starts with real context. |
-| **Team-shared standards** | Specs live in the repo, so one person’s hard-won workflow or rule can benefit the whole team. |
-| **Multi-platform setup** | Bring the same Trellis structure to 13 AI coding platforms instead of rebuilding your workflow per tool. |
+| **Versioned standards** | Specs live in the repo, so your hard-won workflow and rules keep benefiting future sessions. |
+| **Focused platform setup** | Bring the same Trellis structure to Claude Code, OpenCode, and Codex instead of rebuilding your workflow per tool. |
 
 ## Prerequisites
 
@@ -62,11 +62,11 @@ npm install -g @mindfoldhq/trellis@latest
 trellis init -u your-name
 
 # 3. Or initialize with the platforms you actually use
-trellis init --cursor --opencode --codex -u your-name
+trellis init --opencode --codex -u your-name
 ```
 
 - `-u your-name` creates `.trellis/workspace/your-name/` for personal journals and session continuity.
-- Platform flags can be mixed and matched. Current options include `--cursor`, `--opencode`, `--iflow`, `--codex`, `--kilo`, `--kiro`, `--gemini`, `--antigravity`, `--windsurf`, `--qoder`, `--codebuddy`, and `--copilot`.
+- Platform flags can be mixed and matched. Current options are `--claude`, `--opencode`, and `--codex`.
 - For platform-specific setup, entry commands, and upgrade paths, use the docs:
   [Quick Start](https://docs.trytrellis.app/guide/ch02-quick-start) •
   [Supported Platforms](https://docs.trytrellis.app/guide/ch13-multi-platform) •
@@ -88,7 +88,7 @@ Task PRDs, checklists, and workspace journals make previous decisions available 
 
 ### Keep one workflow across tools
 
-If your team uses more than one AI coding tool, Trellis gives you one shared structure for specs, tasks, and process. The platform-specific wiring changes, but the workflow stays recognizable.
+If you use more than one AI coding tool, Trellis gives you one shared structure for specs, tasks, and process. The platform-specific wiring changes, but the workflow stays recognizable.
 
 ## How It Works
 
@@ -103,7 +103,7 @@ Trellis keeps the core workflow in `.trellis/` and generates the platform-specif
 └── scripts/                 # Utilities that power the workflow
 ```
 
-Depending on the platforms you enable, Trellis also creates tool-specific integration files such as `.claude/`, `.cursor/`, `AGENTS.md`, `.agents/`, `.codex/`, `.kilocode/`, `.kiro/`, `.github/copilot/`, and `.github/hooks/`. For Codex, Trellis now installs both project skills under `.agents/skills/` and project-scoped config/custom agents under `.codex/`.
+Depending on the platforms you enable, Trellis also creates tool-specific integration files such as `.claude/`, `.opencode/`, `AGENTS.md`, `.agents/`, and `.codex/`. For Codex, Trellis installs both project skills under `.agents/skills/` and project-scoped config/custom agents under `.codex/`.
 
 At a high level, the workflow is simple:
 
@@ -112,38 +112,27 @@ At a high level, the workflow is simple:
 3. Let Trellis inject the right context for the current task.
 4. Use checks, journals, and worktrees to keep quality and continuity intact.
 
-## Spec Templates & Marketplace
-
-Specs ship as empty templates by default — they are meant to be customized for your project's stack and conventions. You can fill them from scratch, or start from a community template:
-
-```bash
-# Fetch templates from a custom registry
-trellis init --registry https://github.com/your-org/your-spec-templates
-```
-
-Browse available templates and learn how to publish your own on the [Spec Templates page](https://docs.trytrellis.app/templates/specs-index).
-
 ## What's New
 
-- **v0.3.6**: task lifecycle hooks, custom template registries (`--registry`), parent-child subtasks, fix PreToolUse hook for CC v2.1.63+.
-- **v0.3.5**: hotfix for delete migration manifest field name (Kilo workflows).
-- **v0.3.4**: Qoder platform support, Kilo workflows migration, record-session task awareness.
+- **v0.3.6**: task lifecycle hooks, parent-child subtasks, fix PreToolUse hook for CC v2.1.63+.
+- **v0.3.5**: hotfix for delete migration manifest field name.
+- **v0.3.4**: record-session task awareness.
 - **v0.3.1**: background watch mode for `trellis update`, improved `.gitignore` handling, docs refresh.
-- **v0.3.0**: platform support expanded from 2 to 10, Windows compatibility, remote spec templates, `/trellis:brainstorm`.
+- **v0.3.0**: Windows compatibility and `/trellis:brainstorm`.
 
 ## FAQ
 
 <details>
-<summary><strong>How is this different from <code>CLAUDE.md</code>, <code>AGENTS.md</code>, or <code>.cursorrules</code>?</strong></summary>
+<summary><strong>How is this different from <code>CLAUDE.md</code> or <code>AGENTS.md</code>?</strong></summary>
 
-Those files are useful, but they tend to become monolithic. Trellis adds structure around them: layered specs, task context, workspace memory, and platform-aware workflow wiring.
+Those files are useful, but they tend to become monolithic. Trellis adds structure around them: layered specs, task context, workspace memory, and workflow wiring for the tools you actually use.
 
 </details>
 
 <details>
-<summary><strong>Is Trellis only for Claude Code?</strong></summary>
+<summary><strong>Does Trellis only work with Claude Code?</strong></summary>
 
-No. Trellis currently supports Claude Code, Cursor, OpenCode, iFlow, Codex, Kilo, Kiro, Gemini CLI, Antigravity, Windsurf, Qoder, CodeBuddy, and GitHub Copilot. The detailed setup and entry command for each tool lives in the supported platforms guide.
+No. This repo currently supports Claude Code, OpenCode, and Codex. The detailed setup and entry command for each tool lives in the supported platforms guide.
 
 </details>
 
@@ -155,9 +144,9 @@ No. Many teams start by letting AI draft specs from existing code and then tight
 </details>
 
 <details>
-<summary><strong>Can teams use this without constant conflicts?</strong></summary>
+<summary><strong>Will this work for a solo repo?</strong></summary>
 
-Yes. Personal workspace journals stay separate per developer, while shared specs and tasks stay in the repo where they can be reviewed and improved like any other project artifact.
+Yes. Personal workspace journals, task context, and repo-level specs are all designed to work well for a single long-lived workflow.
 
 </details>
 

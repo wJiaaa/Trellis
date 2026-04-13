@@ -255,7 +255,7 @@ Before finishing your spec update:
 - [ ] Did you explain WHY, not just WHAT?
 - [ ] Is it in the right spec file?
 - [ ] Does it duplicate existing content?
-- [ ] Would a new team member understand it?
+- [ ] Would a future maintainer understand it?
 
 ---
 

@@ -53,26 +53,16 @@ const program = new Command();
 program
   .name("trellis")
   .description(
-    "AI-assisted development workflow framework for Cursor, Claude Code and more",
+    "AI-assisted development workflow framework for Claude Code, OpenCode, and Codex",
   )
   .version(VERSION, "-v, --version", "output the version number");
 
 program
   .command("init")
   .description("Initialize trellis in the current project")
-  .option("--cursor", "Include Cursor commands")
   .option("--claude", "Include Claude Code commands")
-  .option("--iflow", "Include iFlow CLI commands")
   .option("--opencode", "Include OpenCode commands")
   .option("--codex", "Include Codex skills")
-  .option("--kilo", "Include Kilo CLI commands")
-  .option("--kiro", "Include Kiro Code skills")
-  .option("--gemini", "Include Gemini CLI commands")
-  .option("--antigravity", "Include Antigravity workflows")
-  .option("--windsurf", "Include Windsurf workflows")
-  .option("--qoder", "Include Qoder commands")
-  .option("--codebuddy", "Include CodeBuddy commands")
-  .option("--copilot", "Include GitHub Copilot hooks")
   .option("-y, --yes", "Skip prompts and use defaults")
   .option(
     "-u, --user <name>",
@@ -82,19 +72,6 @@ program
   .option("-s, --skip-existing", "Skip existing files without asking")
   .option("--monorepo", "Force monorepo mode")
   .option("--no-monorepo", "Skip monorepo detection")
-  .option(
-    "-t, --template <name>",
-    "Use a remote spec template (e.g., electron-fullstack)",
-  )
-  .option(
-    "--overwrite",
-    "Overwrite existing spec directory when using template",
-  )
-  .option("--append", "Only add missing files when using template")
-  .option(
-    "-r, --registry <source>",
-    "Use a custom template registry (e.g., gh:myorg/myrepo/specs)",
-  )
   .action(async (options: Record<string, unknown>) => {
     try {
       await init(options);

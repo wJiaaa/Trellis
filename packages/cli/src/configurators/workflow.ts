@@ -55,12 +55,8 @@ export interface WorkflowOptions {
   projectType: ProjectType;
   /** Enable multi-agent pipeline with worktree support */
   multiAgent?: boolean;
-  /** Skip creating local spec templates (when using remote template) — single-repo mode */
-  skipSpecTemplates?: boolean;
   /** Detected monorepo packages (enables monorepo spec creation) */
   packages?: DetectedPackage[];
-  /** Package names that use remote templates (skip blank spec for these) */
-  remoteSpecPackages?: Set<string>;
 }
 
 /**
@@ -83,9 +79,7 @@ export async function createWorkflowStructure(
 ): Promise<void> {
   const projectType = options?.projectType ?? "fullstack";
   const multiAgent = options?.multiAgent ?? false;
-  const skipSpecTemplates = options?.skipSpecTemplates ?? false;
   const packages = options?.packages;
-  const remoteSpecPackages = options?.remoteSpecPackages;
 
   // Create base .trellis directory
   ensureDir(path.join(cwd, DIR_NAMES.WORKFLOW));
@@ -135,9 +129,9 @@ export async function createWorkflowStructure(
   // These are NOT dogfooded - they are generic templates for new projects
   if (packages && packages.length > 0) {
     // Monorepo mode: create per-package spec directories
-    await createSpecTemplates(cwd, projectType, packages, remoteSpecPackages);
-  } else if (!skipSpecTemplates) {
-    // Single-repo mode: create global spec (skip if using remote template)
+    await createSpecTemplates(cwd, projectType, packages);
+  } else {
+    // Single-repo mode: create global spec
     await createSpecTemplates(cwd, projectType);
   }
 }
@@ -215,7 +209,6 @@ async function createSpecTemplates(
   cwd: string,
   projectType: ProjectType,
   packages?: DetectedPackage[],
-  remoteSpecPackages?: Set<string>,
 ): Promise<void> {
   // Ensure spec directory exists
   ensureDir(path.join(cwd, PATHS.SPEC));
@@ -242,7 +235,6 @@ async function createSpecTemplates(
     // Monorepo mode: create spec/<name>/ for each package
     for (const pkg of packages) {
       const dirName = sanitizePkgName(pkg.name);
-      if (remoteSpecPackages?.has(dirName)) continue;
       const pkgSpecBase = path.join(cwd, `${PATHS.SPEC}/${dirName}`);
       ensureDir(pkgSpecBase);
       const pkgType = pkg.type === "unknown" ? "fullstack" : pkg.type;

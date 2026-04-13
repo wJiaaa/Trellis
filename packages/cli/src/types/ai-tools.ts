@@ -7,58 +7,18 @@
 /**
  * Supported AI coding tools
  */
-export type AITool =
-  | "claude-code"
-  | "cursor"
-  | "opencode"
-  | "iflow"
-  | "codex"
-  | "kilo"
-  | "kiro"
-  | "gemini"
-  | "antigravity"
-  | "windsurf"
-  | "qoder"
-  | "codebuddy"
-  | "copilot";
+export type AITool = "claude-code" | "opencode" | "codex";
 
 /**
  * Template directory categories
  */
-export type TemplateDir =
-  | "common"
-  | "claude"
-  | "cursor"
-  | "opencode"
-  | "iflow"
-  | "codex"
-  | "kilo"
-  | "kiro"
-  | "gemini"
-  | "antigravity"
-  | "windsurf"
-  | "qoder"
-  | "codebuddy"
-  | "copilot";
+export type TemplateDir = "common" | "claude" | "opencode" | "codex";
 
 /**
- * CLI flag names for platform selection (e.g., --claude, --cursor, --kilo, --kiro, --gemini, --antigravity)
+ * CLI flag names for platform selection.
  * Must match keys in InitOptions (src/commands/init.ts)
  */
-export type CliFlag =
-  | "claude"
-  | "cursor"
-  | "opencode"
-  | "iflow"
-  | "codex"
-  | "kilo"
-  | "kiro"
-  | "gemini"
-  | "antigravity"
-  | "windsurf"
-  | "qoder"
-  | "codebuddy"
-  | "copilot";
+export type CliFlag = "claude" | "opencode" | "codex";
 
 /**
  * Configuration for an AI tool
@@ -106,14 +66,6 @@ export const AI_TOOLS: Record<AITool, AIToolConfig> = {
     defaultChecked: true,
     hasPythonHooks: true,
   },
-  cursor: {
-    name: "Cursor",
-    templateDirs: ["common", "cursor"],
-    configDir: ".cursor",
-    cliFlag: "cursor",
-    defaultChecked: true,
-    hasPythonHooks: false,
-  },
   opencode: {
     name: "OpenCode",
     templateDirs: ["common", "opencode"],
@@ -122,85 +74,12 @@ export const AI_TOOLS: Record<AITool, AIToolConfig> = {
     defaultChecked: false,
     hasPythonHooks: false,
   },
-  iflow: {
-    name: "iFlow CLI",
-    templateDirs: ["common", "iflow"],
-    configDir: ".iflow",
-    cliFlag: "iflow",
-    defaultChecked: false,
-    hasPythonHooks: true,
-  },
   codex: {
     name: "Codex",
     templateDirs: ["common", "codex"],
     configDir: ".codex",
     supportsAgentSkills: true,
     cliFlag: "codex",
-    defaultChecked: false,
-    hasPythonHooks: true,
-  },
-  kilo: {
-    name: "Kilo CLI",
-    templateDirs: ["common", "kilo"],
-    configDir: ".kilocode",
-    cliFlag: "kilo",
-    defaultChecked: false,
-    hasPythonHooks: false,
-  },
-  kiro: {
-    name: "Kiro Code",
-    templateDirs: ["common", "kiro"],
-    configDir: ".kiro/skills",
-    cliFlag: "kiro",
-    defaultChecked: false,
-    hasPythonHooks: false,
-  },
-  gemini: {
-    name: "Gemini CLI",
-    templateDirs: ["common", "gemini"],
-    configDir: ".gemini",
-    cliFlag: "gemini",
-    defaultChecked: false,
-    hasPythonHooks: false,
-  },
-  antigravity: {
-    name: "Antigravity",
-    templateDirs: ["common", "antigravity"],
-    configDir: ".agent/workflows",
-    cliFlag: "antigravity",
-    defaultChecked: false,
-    hasPythonHooks: false,
-  },
-  windsurf: {
-    name: "Windsurf",
-    templateDirs: ["common", "windsurf"],
-    configDir: ".windsurf/workflows",
-    cliFlag: "windsurf",
-    defaultChecked: false,
-    hasPythonHooks: false,
-  },
-  qoder: {
-    name: "Qoder",
-    templateDirs: ["common", "qoder"],
-    configDir: ".qoder",
-    cliFlag: "qoder",
-    defaultChecked: false,
-    hasPythonHooks: false,
-  },
-  codebuddy: {
-    name: "CodeBuddy",
-    templateDirs: ["common", "codebuddy"],
-    configDir: ".codebuddy",
-    cliFlag: "codebuddy",
-    defaultChecked: false,
-    hasPythonHooks: false,
-  },
-  copilot: {
-    name: "GitHub Copilot",
-    templateDirs: ["common", "copilot"],
-    configDir: ".github/copilot",
-    extraManagedPaths: [".github/hooks", ".github/prompts"],
-    cliFlag: "copilot",
     defaultChecked: false,
     hasPythonHooks: true,
   },

@@ -40,7 +40,7 @@ For triggered tasks, include all sections below:
 
 | Trigger | Example | Target Spec |
 |---------|---------|-------------|
-| **Implemented a feature** | Added template download with giget | Relevant `backend/` or `frontend/` file |
+| **Implemented a feature** | Added or changed a generator/runtime feature | Relevant `backend/` or `frontend/` file |
 | **Made a design decision** | Used type field + mapping table for extensibility | Relevant code-spec + "Design Decisions" section |
 | **Fixed a bug** | Found a subtle issue with error handling | `backend/error-handling.md` |
 | **Discovered a pattern** | Found a better way to structure code | Relevant `backend/` or `frontend/` file |
@@ -324,7 +324,7 @@ Before finishing your code-spec update:
 - [ ] Did you include required tests with assertion points?
 - [ ] Is it in the right code-spec file?
 - [ ] Does it duplicate existing content?
-- [ ] Would a new team member understand it?
+- [ ] Would a future maintainer understand it?
 
 ---
 

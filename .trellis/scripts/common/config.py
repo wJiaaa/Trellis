@@ -95,7 +95,7 @@ def get_packages(repo_root: Path | None = None) -> dict[str, dict] | None:
         or None if not configured (single-repo mode).
 
     Example return:
-        {"cli": {"path": "packages/cli"}, "docs-site": {"path": "docs-site", "type": "submodule"}}
+        {"cli": {"path": "packages/cli"}}
     """
     config = _load_config(repo_root)
     packages = config.get("packages")
@@ -127,7 +127,7 @@ def get_submodule_packages(repo_root: Path | None = None) -> dict[str, str]:
         Empty dict if none configured.
 
     Example return:
-        {"docs-site": "docs-site"}
+        {}
     """
     packages = get_packages(repo_root)
     if packages is None:

@@ -14,7 +14,7 @@ This script:
 
 Prerequisites:
     - task.json must exist with 'branch' field
-    - agents/dispatch.md must exist (in .claude/, .cursor/, .iflow/, or .opencode/)
+    - agents/dispatch.md must exist (in .claude/ or .opencode/)
 
 Configuration: .trellis/worktree.yaml
 """
@@ -187,7 +187,7 @@ def main() -> int:
     parser.add_argument("task_dir", help="Task directory path")
     parser.add_argument(
         "--platform", "-p",
-        choices=["claude", "cursor", "iflow", "opencode", "codex", "qoder"],
+        choices=["claude", "opencode", "codex"],
         default=DEFAULT_PLATFORM,
         help="Platform to use (default: claude)"
     )

@@ -324,7 +324,7 @@ Before finishing your code-spec update:
 - [ ] Did you include required tests with assertion points?
 - [ ] Is it in the right code-spec file?
 - [ ] Does it duplicate existing content?
-- [ ] Would a new team member understand it?
+- [ ] Would a future maintainer understand it?
 
 ---
 

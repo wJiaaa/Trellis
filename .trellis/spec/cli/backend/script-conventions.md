@@ -652,14 +652,11 @@ commit_hash = rest.split()[0]
 packages:
   cli:
     path: packages/cli
-  docs-site:
-    path: docs-site
-    type: submodule       # optional, marks git submodule
 default_package: cli      # first non-submodule package
 
 # Session behavior
 session:
-  spec_scope: active_task  # or ["cli", "docs-site"] or omit for full scan
+  spec_scope: active_task  # or ["cli"] or omit for full scan
 
 # Update behavior
 update:

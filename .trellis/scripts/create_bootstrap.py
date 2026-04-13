@@ -165,7 +165,7 @@ After completing this task:
 1. AI will write code that matches your project style
 2. Relevant `/trellis:before-*-dev` commands will inject real context
 3. `/trellis:check-*` commands will validate against your actual standards
-4. Future developers (human or AI) will onboard faster
+4. Future sessions will onboard faster
 """
 
 

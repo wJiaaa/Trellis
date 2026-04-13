@@ -3,7 +3,7 @@
  *
  * Detects HTTP_PROXY / HTTPS_PROXY / ALL_PROXY environment variables
  * and configures undici's global dispatcher so that all fetch() calls
- * (including those made internally by giget) go through the proxy.
+ * so CLI network requests consistently go through the proxy.
  */
 
 import { ProxyAgent, setGlobalDispatcher } from "undici";

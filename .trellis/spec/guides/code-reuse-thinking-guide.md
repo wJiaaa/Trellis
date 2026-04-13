@@ -101,21 +101,21 @@ When you've made similar changes to multiple files:
 
 **Example** (`cli_adapter.py`):
 ```python
-# BAD: "gemini" falls through to else, returns "claude"
+# BAD: a newly added platform falls through to else, returns "claude"
 @property
 def cli_name(self) -> str:
     if self.platform == "opencode":
         return "opencode"
     else:
-        return "claude"  # gemini silently gets "claude"!
+        return "claude"  # newly added platform silently gets "claude"!
 
 # GOOD: explicit branch for every platform
 @property
 def cli_name(self) -> str:
     if self.platform == "opencode":
         return "opencode"
-    elif self.platform == "gemini":
-        return "gemini"
+    elif self.platform == "codex":
+        return "codex"
     else:
         return "claude"
 ```

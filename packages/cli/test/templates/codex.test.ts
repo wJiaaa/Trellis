@@ -16,7 +16,6 @@ const EXPECTED_SKILL_NAMES = [
   "finish-work",
   "improve-ut",
   "integrate-skill",
-  "onboard",
   "record-session",
   "start",
   "update-spec",
@@ -50,7 +49,6 @@ describe("codex getAllSkills", () => {
     for (const skill of skills) {
       expect(skill.content).not.toContain("/trellis:");
       expect(skill.content).not.toContain(".claude/");
-      expect(skill.content).not.toContain(".cursor/");
       expect(skill.content).not.toContain("Task(");
       expect(skill.content).not.toContain("subagent_type");
       expect(skill.content).not.toContain('model: "opus"');

@@ -12,7 +12,7 @@ This script:
 After completion, use start.py to launch the Dispatch Agent.
 
 Prerequisites:
-    - agents/plan.md must exist (in .claude/, .cursor/, .iflow/, or .opencode/)
+    - agents/plan.md must exist (in .claude/ or .opencode/)
     - Developer must be initialized
 """
 
@@ -22,8 +22,6 @@ import argparse
 import os
 import subprocess
 import sys
-from pathlib import Path
-
 import _bootstrap  # noqa: F401 — adds parent scripts/ dir to sys.path
 
 from common.cli_adapter import get_cli_adapter
@@ -53,7 +51,7 @@ def main() -> int:
     parser.add_argument("--requirement", "-r", required=True, help="Requirement description")
     parser.add_argument(
         "--platform", "-p",
-        choices=["claude", "cursor", "iflow", "opencode", "codex", "qoder"],
+        choices=["claude", "opencode", "codex"],
         default=DEFAULT_PLATFORM,
         help="Platform to use (default: claude)"
     )

@@ -312,7 +312,7 @@ def get_context_text(repo_root: Path | None = None) -> str:
         t = all_tasks[name]
         progress = children_progress(t.children, all_statuses)
         prefix = "  " * indent
-        lines.append(f"{prefix}- {name}/ ({t.status}){progress} @{t.assignee or '-'}")
+        lines.append(f"{prefix}- {name}/ ({t.status}){progress}")
         task_count += 1
         for child in t.children:
             if child in all_tasks:
@@ -325,20 +325,6 @@ def get_context_text(repo_root: Path | None = None) -> str:
     if task_count == 0:
         lines.append("(no active tasks)")
     lines.append(f"Total: {task_count} active task(s)")
-    lines.append("")
-
-    # My tasks
-    lines.append("## MY TASKS (Assigned to me)")
-    my_task_count = 0
-
-    for t in all_tasks.values():
-        if t.assignee == developer and t.status != "done":
-            progress = children_progress(t.children, all_statuses)
-            lines.append(f"- [{t.priority}] {t.title} ({t.status}){progress}")
-            my_task_count += 1
-
-    if my_task_count == 0:
-        lines.append("(no tasks assigned to you)")
     lines.append("")
 
     # Journal file
@@ -403,27 +389,17 @@ def get_context_record_json(repo_root: Path | None = None) -> dict:
             if len(parts) >= 2:
                 commits.append({"hash": parts[0], "message": parts[1]})
 
-    # My tasks (single pass — collect statuses and filter by assignee)
-    all_tasks_list = list(iter_active_tasks(tasks_dir))
-    all_statuses = {t.dir_name: t.status for t in all_tasks_list}
-
-    my_tasks = []
-    for t in all_tasks_list:
-        if t.assignee == developer:
-            done = sum(
-                1 for c in t.children
-                if all_statuses.get(c) in ("completed", "done")
-            )
-            my_tasks.append({
-                "dir": t.dir_name,
-                "title": t.title,
-                "status": t.status,
-                "priority": t.priority,
-                "children": list(t.children),
-                "childrenDone": done,
-                "parent": t.parent,
-                "meta": t.meta,
-            })
+    active_tasks = []
+    for t in iter_active_tasks(tasks_dir):
+        active_tasks.append({
+            "dir": t.dir_name,
+            "title": t.title,
+            "status": t.status,
+            "priority": t.priority,
+            "children": list(t.children),
+            "parent": t.parent,
+            "meta": t.meta,
+        })
 
     # Current task
     current_task_info = None
@@ -448,7 +424,7 @@ def get_context_record_json(repo_root: Path | None = None) -> dict:
             "uncommittedChanges": git_status_count,
             "recentCommits": commits,
         },
-        "myTasks": my_tasks,
+        "activeTasks": active_tasks,
         "currentTask": current_task_info,
     }
 
@@ -461,8 +437,8 @@ def get_context_record_json(repo_root: Path | None = None) -> dict:
 def get_context_text_record(repo_root: Path | None = None) -> str:
     """Get context as formatted text for record-session mode.
 
-    Focused output: MY ACTIVE TASKS first (with [!!!] emphasis),
-    then GIT STATUS, RECENT COMMITS, CURRENT TASK.
+    Focused output: active tasks first, then GIT STATUS,
+    RECENT COMMITS, CURRENT TASK.
     """
     if repo_root is None:
         repo_root = get_repo_root()
@@ -480,25 +456,23 @@ def get_context_text_record(repo_root: Path | None = None) -> str:
         )
         return "\n".join(lines)
 
-    # MY ACTIVE TASKS — first and prominent
-    lines.append(f"## [!!!] MY ACTIVE TASKS (Assigned to {developer})")
+    # ACTIVE TASKS — first and prominent
+    lines.append("## [!!!] ACTIVE TASKS")
     lines.append("[!] Review whether any should be archived before recording this session.")
     lines.append("")
 
     tasks_dir = get_tasks_dir(repo_root)
-    my_task_count = 0
+    task_count = 0
 
-    # Single pass — collect all tasks and filter by assignee
     all_statuses = get_all_statuses(tasks_dir)
 
     for t in iter_active_tasks(tasks_dir):
-        if t.assignee == developer:
-            progress = children_progress(t.children, all_statuses)
-            lines.append(f"- [{t.priority}] {t.title} ({t.status}){progress} — {t.dir_name}")
-            my_task_count += 1
+        progress = children_progress(t.children, all_statuses)
+        lines.append(f"- [{t.priority}] {t.title} ({t.status}){progress} — {t.dir_name}")
+        task_count += 1
 
-    if my_task_count == 0:
-        lines.append("(no active tasks assigned to you)")
+    if task_count == 0:
+        lines.append("(no active tasks)")
     lines.append("")
 
     # GIT STATUS

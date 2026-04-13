@@ -174,8 +174,9 @@ Define interfaces for structured data:
 ```typescript
 // Good: Interface for options
 interface InitOptions {
-  cursor?: boolean;
   claude?: boolean;
+  opencode?: boolean;
+  codex?: boolean;
   yes?: boolean;
   user?: string;
   force?: boolean;
@@ -193,7 +194,7 @@ Use type aliases for unions and computed types:
 
 ```typescript
 // Good: Type alias for union
-export type AITool = "claude-code" | "cursor" | "opencode";
+export type AITool = "claude-code" | "opencode" | "codex";
 export type WriteMode = "ask" | "force" | "skip" | "append";
 export type ProjectType = "frontend" | "backend" | "fullstack" | "unknown";
 
@@ -301,13 +302,13 @@ When a CLI has both explicit flags (`--tool`) and convenience flags (`-y`), expl
 ```typescript
 // Bad: -y overrides explicit flags
 if (options.yes) {
-  tools = ["cursor", "claude"]; // Ignores --iflow, --opencode!
-} else if (options.cursor || options.iflow) {
+  tools = ["claude"]; // Ignores --opencode, --codex!
+} else if (options.opencode || options.codex) {
   // Build from flags...
 }
 
 // Good: Check explicit flags first
-const hasExplicitTools = options.cursor || options.iflow || options.opencode;
+const hasExplicitTools = options.claude || options.opencode || options.codex;
 if (hasExplicitTools) {
   // Build from explicit flags (works with or without -y)
 } else if (options.yes) {
@@ -323,16 +324,16 @@ When handling multiple similar options, use arrays with metadata instead of repe
 
 ```typescript
 // Bad: Repetitive if-else
-if (options.cursor) tools.push("cursor");
 if (options.claude) tools.push("claude");
-if (options.iflow) tools.push("iflow");
+if (options.opencode) tools.push("opencode");
+if (options.codex) tools.push("codex");
 // ... repeated logic, easy to miss one
 
 // Good: Data-driven approach
 const TOOLS = [
-  { key: "cursor", name: "Cursor", defaultChecked: true },
   { key: "claude", name: "Claude Code", defaultChecked: true },
-  { key: "iflow", name: "iFlow CLI", defaultChecked: false },
+  { key: "opencode", name: "OpenCode", defaultChecked: false },
+  { key: "codex", name: "Codex", defaultChecked: false },
 ] as const;
 
 // Single source of truth for:
@@ -489,7 +490,7 @@ Create a format table covering every combination of:
 ```markdown
 | # | Format | Example | Expected Behavior |
 |---|--------|---------|-------------------|
-| 1 | giget prefix | `gh:org/repo` | Native provider |
+| 1 | provider prefix | `gh:org/repo` | Native provider |
 | 2 | Public HTTPS | `https://github.com/org/repo` | Auto-convert to gh: |
 | 3 | Public SSH | `git@github.com:org/repo` | Auto-convert to gh: |
 | 4 | Self-hosted HTTPS | `https://git.corp.com/org/repo` | Detect host, map to gitlab: |
