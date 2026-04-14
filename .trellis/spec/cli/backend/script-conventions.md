@@ -658,16 +658,15 @@ default_package: cli      # first non-submodule package
 session:
   spec_scope: active_task  # or ["cli"] or omit for full scan
 
-# Update behavior
-update:
-  skip:
-    - .claude/commands/trellis/my-custom.md
-
 # Lifecycle hooks
 hooks:
   after_create:
     - "python3 .trellis/scripts/hooks/my_hook.py create"
 ```
+
+## Worktree / multi-agent notes
+- When `start.py` creates a worktree for a task, it uses git worktree and the per-package config to ensure each agent operates in isolation.
+- Use `python3 .trellis/scripts/multi_agent/plan.py` to describe the worktree layout, and `python3 .trellis/scripts/multi_agent/status.py` to monitor active agents.
 
 ### Worktree Submodule Initialization
 
@@ -905,4 +904,4 @@ See `.trellis/scripts/task.py` for a comprehensive example with:
 
 ## Migration Note
 
-> **Historical Context**: Scripts were migrated from Bash to Python in v0.3.0 for cross-platform compatibility. The old shell scripts are archived in `.trellis/scripts-shell-archive/` (if preserved).
+> **Historical Context**: Scripts were migrated from Bash to Python in v0.3.0 for cross-platform compatibility. The current codebase standardizes on the Python entrypoints under `.trellis/scripts/`.

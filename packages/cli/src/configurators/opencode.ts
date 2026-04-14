@@ -78,24 +78,3 @@ export async function configureOpenCode(cwd: string): Promise<void> {
   // Copy templates, excluding build artifacts
   await copyDirFiltered(sourcePath, destPath);
 }
-
-/**
- * Configure OpenCode agents for Multi-Agent Pipeline
- *
- * @deprecated Agents are now included in the main .opencode directory copy.
- * This function is kept for backwards compatibility but does nothing.
- */
-export async function configureOpenCodeAgents(_cwd: string): Promise<void> {
-  // Agents are now copied as part of configureOpenCode
-  // This function is kept for API compatibility
-}
-
-/**
- * Configure OpenCode with full Multi-Agent Pipeline support
- *
- * This is now equivalent to just calling configureOpenCode since the entire
- * .opencode directory is copied at once.
- */
-export async function configureOpenCodeFull(cwd: string): Promise<void> {
-  await configureOpenCode(cwd);
-}

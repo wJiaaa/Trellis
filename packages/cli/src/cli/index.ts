@@ -1,52 +1,10 @@
-import fs from "node:fs";
-import path from "node:path";
 import chalk from "chalk";
 import { Command } from "commander";
 import { init } from "../commands/init.js";
-import { update } from "../commands/update.js";
-import { DIR_NAMES } from "../constants/paths.js";
 import { VERSION, PACKAGE_NAME } from "../constants/version.js";
-import { compareVersions } from "../utils/compare-versions.js";
 
 // Re-export for backwards compatibility (consumers should prefer constants/version.js)
 export { VERSION, PACKAGE_NAME };
-
-/**
- * Check if a Trellis update is available (compare project version with CLI version)
- */
-function checkForUpdates(cwd: string): void {
-  const versionFile = path.join(cwd, DIR_NAMES.WORKFLOW, ".version");
-
-  if (!fs.existsSync(versionFile)) return;
-
-  const projectVersion = fs.readFileSync(versionFile, "utf-8").trim();
-  const cliVersion = VERSION;
-  const comparison = compareVersions(cliVersion, projectVersion);
-
-  if (comparison > 0) {
-    // CLI is newer than project - update available
-    console.log(
-      chalk.yellow(
-        `\n⚠️  Trellis update available: ${projectVersion} → ${cliVersion}`,
-      ),
-    );
-    console.log(chalk.gray(`   Run: trellis update\n`));
-  } else if (comparison < 0) {
-    // CLI is older than project - CLI needs updating
-    console.log(
-      chalk.yellow(
-        `\n⚠️  Your CLI (${cliVersion}) is older than project (${projectVersion})`,
-      ),
-    );
-    console.log(chalk.gray(`   Run: npm install -g ${PACKAGE_NAME}\n`));
-  }
-}
-
-// Check for updates at CLI startup (only if .trellis exists)
-const cwd = process.cwd();
-if (fs.existsSync(path.join(cwd, DIR_NAMES.WORKFLOW))) {
-  checkForUpdates(cwd);
-}
 
 const program = new Command();
 
@@ -75,34 +33,6 @@ program
   .action(async (options: Record<string, unknown>) => {
     try {
       await init(options);
-    } catch (error) {
-      console.error(
-        chalk.red("Error:"),
-        error instanceof Error ? error.message : error,
-      );
-      process.exit(1);
-    }
-  });
-
-program
-  .command("update")
-  .description("Update trellis configuration and commands to latest version")
-  .option("--dry-run", "Preview changes without applying them")
-  .option("-f, --force", "Overwrite all changed files without asking")
-  .option("-s, --skip-all", "Skip all changed files without asking")
-  .option("-n, --create-new", "Create .new copies for all changed files")
-  .option("--allow-downgrade", "Allow downgrading to an older version")
-  .option("--migrate", "Apply pending file migrations (renames/deletions)")
-  .action(async (options: Record<string, unknown>) => {
-    try {
-      await update({
-        dryRun: options.dryRun as boolean,
-        force: options.force as boolean,
-        skipAll: options.skipAll as boolean,
-        createNew: options.createNew as boolean,
-        allowDowngrade: options.allowDowngrade as boolean,
-        migrate: options.migrate as boolean,
-      });
     } catch (error) {
       console.error(
         chalk.red("Error:"),

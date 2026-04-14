@@ -128,14 +128,14 @@ def cli_name(self) -> str:
 
 **Problem**: When two different mechanisms must produce the same file set (e.g., recursive directory copy for init vs. manual `files.set()` for update), structural changes (renaming, moving, adding subdirectories) only propagate through the automatic mechanism. The manual one silently drifts.
 
-**Symptom**: Init works perfectly, but update creates files at wrong paths or misses files entirely.
+**Symptom**: One code path writes the expected files, but another path silently creates stale or incomplete output.
 
 **Prevention**:
 - **Best**: Eliminate the asymmetry — have the manual path call the automatic one (e.g., `collectTemplateFiles()` calls `getAllScripts()` instead of maintaining its own list)
 - **If asymmetry is unavoidable**: Add a regression test that compares outputs from both mechanisms
 - When migrating directory structures, search for ALL code paths that reference the old structure
 
-**Real example**: `trellis update` had a manual `files.set()` list for 11 scripts that `getAllScripts()` already tracked. Fix: replaced the manual list with a `for..of getAllScripts()` loop. See `update.ts` refactor in v0.4.0-beta.3.
+**Real example**: Trellis used to maintain a second manual list of scripts alongside `getAllScripts()`. That duplicate list drifted and silently missed 11 files. The fix was to keep `getAllScripts()` as the single source of truth.
 
 ---
 
@@ -148,11 +148,11 @@ When adding new files to `src/templates/trellis/scripts/`:
 1. Add `export const xxxScript = readTemplate("scripts/path/file.py");`
 2. Add to `getAllScripts()` Map
 
-That's it. `commands/update.ts` uses `getAllScripts()` directly — no manual sync needed.
+That's it. `commands/init.ts` and workflow generation should consume the same registration point rather than maintaining ad-hoc file lists.
 
-**Why this matters**: Without registration in `getAllScripts()`, `trellis update` won't sync the file to user projects. Bug fixes and features won't propagate.
+**Why this matters**: Without registration in `getAllScripts()`, new projects and dogfooded workflows will silently miss the script.
 
-**History**: Before v0.4.0-beta.3, `update.ts` had its own hand-maintained file list that frequently fell out of sync with `getAllScripts()`. This caused 11 Python files to be silently skipped during `trellis update`. The fix was to eliminate the duplicate list and use `getAllScripts()` as the single source of truth.
+**History**: Trellis previously kept a second hand-maintained file list that frequently fell out of sync with `getAllScripts()`. The fix was to eliminate the duplicate list and keep one registration point.
 
 ### Quick Checklist for New Scripts
 

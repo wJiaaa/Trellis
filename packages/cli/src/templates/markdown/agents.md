@@ -17,6 +17,6 @@ If you're using Codex, project-scoped helpers may also live in:
 - `.agents/skills/` for reusable Trellis skills
 - `.codex/agents/` for optional custom subagents
 
-Keep this managed block so 'trellis update' can refresh the instructions.
+Keep this managed block so Trellis init can refresh the instructions when templates change.
 
 <!-- TRELLIS:END -->

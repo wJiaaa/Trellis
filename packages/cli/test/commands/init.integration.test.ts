@@ -18,7 +18,6 @@ vi.mock("node:child_process", () => ({
 import { execSync } from "node:child_process";
 import { init } from "../../src/commands/init.js";
 import { DIR_NAMES, PATHS } from "../../src/constants/paths.js";
-import { VERSION } from "../../src/constants/version.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -81,17 +80,6 @@ describe("init() integration", () => {
     ).toBe(false);
     expect(
       fs.existsSync(path.join(tmpDir, ".codex", "skills", "parallel", "SKILL.md")),
-    ).toBe(true);
-  });
-
-  it("writes version and hash tracking files", async () => {
-    await init({ yes: true, claude: true });
-
-    expect(
-      fs.readFileSync(path.join(tmpDir, ".trellis", ".version"), "utf-8").trim(),
-    ).toBe(VERSION);
-    expect(
-      fs.existsSync(path.join(tmpDir, ".trellis", ".template-hashes.json")),
     ).toBe(true);
   });
 

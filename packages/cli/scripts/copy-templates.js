@@ -42,10 +42,4 @@ function copyDir(src, dest) {
 
 // Copy src/templates to dist/templates
 copyDir("src/templates", "dist/templates");
-console.log("Copied src/templates/ to dist/templates/");
-
-// Copy src/migrations/manifests to dist/migrations/manifests
-copyDir("src/migrations/manifests", "dist/migrations/manifests");
-console.log("Copied src/migrations/manifests/ to dist/migrations/manifests/");
-
-console.log("Template copy complete.");
+console.log("Copied src/templates/ to dist/templates");

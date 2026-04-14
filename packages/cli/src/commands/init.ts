@@ -15,7 +15,6 @@ import {
 } from "../configurators/index.js";
 import { AI_TOOLS, type CliFlag } from "../types/ai-tools.js";
 import { DIR_NAMES, FILE_NAMES, PATHS } from "../constants/paths.js";
-import { VERSION } from "../constants/version.js";
 import { agentsMdContent } from "../templates/markdown/index.js";
 import {
   setWriteMode,
@@ -29,7 +28,6 @@ import {
   type ProjectType,
   type DetectedPackage,
 } from "../utils/project-detector.js";
-import { initializeHashes } from "../utils/template-hash.js";
 
 /**
  * Detect available Python command (python3 or python) and verify version >= 3.10
@@ -472,14 +470,6 @@ async function handleReinit(
         }
       }
     }
-
-    // Update template hashes
-    const hashedCount = initializeHashes(cwd);
-    if (hashedCount > 0) {
-      console.log(
-        chalk.gray(`📋 Tracking ${hashedCount} template files for updates`),
-      );
-    }
   }
 
   // --- Add developer ---
@@ -775,10 +765,6 @@ export async function init(options: InitOptions): Promise<void> {
     console.log(chalk.blue("📦 Monorepo packages written to config.yaml"));
   }
 
-  // Write version file for update tracking
-  const versionPath = path.join(cwd, DIR_NAMES.WORKFLOW, ".version");
-  fs.writeFileSync(versionPath, VERSION);
-
   // Configure selected tools by copying entire directories (dogfooding)
   for (const tool of tools) {
     const platformId = resolveCliFlag(tool);
@@ -803,14 +789,6 @@ export async function init(options: InitOptions): Promise<void> {
 
   // Create root files (skip if exists)
   await createRootFiles(cwd);
-
-  // Initialize template hashes for modification tracking
-  const hashedCount = initializeHashes(cwd);
-  if (hashedCount > 0) {
-    console.log(
-      chalk.gray(`📋 Tracking ${hashedCount} template files for updates`),
-    );
-  }
 
   // Initialize developer identity (silent - no output)
   if (developerName) {

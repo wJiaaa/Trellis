@@ -23,36 +23,20 @@ export function getTrellisTemplatePath(): string {
   return getTemplatePath("trellis");
 }
 
-export function getTrellisSourcePath(): string {
-  return getTrellisTemplatePath();
-}
-
 export function getClaudeTemplatePath(): string {
   return getTemplatePath("claude");
-}
-
-export function getClaudeSourcePath(): string {
-  return getClaudeTemplatePath();
 }
 
 export function getOpenCodeTemplatePath(): string {
   return getTemplatePath("opencode");
 }
 
-export function getOpenCodeSourcePath(): string {
-  return getOpenCodeTemplatePath();
-}
-
 export function getCodexTemplatePath(): string {
   return getTemplatePath("codex");
 }
 
-export function getCodexSourcePath(): string {
-  return getCodexTemplatePath();
-}
-
 export function readTrellisFile(relativePath: string): string {
-  const trellisPath = getTrellisSourcePath();
+  const trellisPath = getTrellisTemplatePath();
   const filePath = path.join(trellisPath, relativePath);
   return fs.readFileSync(filePath, "utf-8");
 }
@@ -73,18 +57,14 @@ export function readMarkdown(relativePath: string): string {
   return readTrellisFile(relativePath);
 }
 
-export function readCommand(filename: string): string {
-  return readTemplate("commands", filename);
-}
-
 export function readClaudeFile(relativePath: string): string {
-  const claudePath = getClaudeSourcePath();
+  const claudePath = getClaudeTemplatePath();
   const filePath = path.join(claudePath, relativePath);
   return fs.readFileSync(filePath, "utf-8");
 }
 
 export function readOpenCodeFile(relativePath: string): string {
-  const opencodePath = getOpenCodeSourcePath();
+  const opencodePath = getOpenCodeTemplatePath();
   const filePath = path.join(opencodePath, relativePath);
   return fs.readFileSync(filePath, "utf-8");
 }
@@ -94,7 +74,7 @@ export async function copyTrellisDir(
   destPath: string,
   options?: { executable?: boolean },
 ): Promise<void> {
-  const trellisPath = getTrellisSourcePath();
+  const trellisPath = getTrellisTemplatePath();
   const srcPath = path.join(trellisPath, srcRelativePath);
   await copyDirRecursive(srcPath, destPath, options);
 }

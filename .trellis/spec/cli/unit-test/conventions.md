@@ -30,14 +30,14 @@
 | New pure/utility function | Unit test | Added `compareVersions()` → test boundary values |
 | New platform | Unit (auto-covered by `registry-invariants.test.ts`) | Added opencode → invariants verify consistency |
 | Bug fix | Regression test | Fixed Windows encoding → add to `regression.test.ts` |
-| Changed init/update behavior | Integration test | Changed downgrade logic → add/update scenario in `update.integration.test.ts` |
+| Changed init or CLI workflow behavior | Integration test | Changed monorepo init behavior → update `init.integration.test.ts` |
 
 ### Don't need tests
 
 | Change Type | Reason |
 |-------------|--------|
 | Template text / doc content changes | No logic change |
-| New migration manifest JSON | `registry-invariants.test.ts` auto-validates format |
+| Release notes / changelog text | No logic change |
 | CLI flag description text | Display-only |
 
 ### Must update existing tests
@@ -55,7 +55,7 @@ Does this change have logic branches?
 └─ Yes
    ├─ Standalone function with predictable input→output? → Unit test
    ├─ Fixing a historical bug? → Regression test (verify fix exists in source)
-   └─ Changes init/update end-to-end behavior? → Integration test
+   └─ Changes init or CLI workflow end-to-end behavior? → Integration test
 ```
 
 ---
@@ -67,9 +67,7 @@ test/
   types/
     ai-tools.test.ts          # Unit tests for src/types/ai-tools.ts
   commands/
-    update-internals.test.ts   # Unit tests for internal functions
     init.integration.test.ts   # Integration tests for init() command
-    update.integration.test.ts # Integration tests for update() command
   regression.test.ts           # Cross-version regression tests
 ```
 
@@ -273,25 +271,26 @@ it("[beta.10] common/__init__.py has centralized encoding fix", () => {
 ### Tautological Input (Test Doesn't Exercise the Code Path)
 
 ```typescript
-// Bad: test input never triggers the code path being tested
-it("safe-file-delete respects update.skip", () => {
-  // Writes "some content" — hash never matches allowed_hashes
-  // So collectSafeFileDeletes() returns "skip-modified" BEFORE checking update.skip
-  // Even if update.skip logic is completely broken, this test passes
-  fs.writeFileSync(deprecatedFile, "some content");
-  config.update.skip = [".claude/commands/trellis/"];
-  await update({ force: true });
-  expect(fs.existsSync(deprecatedFile)).toBe(true); // Always true!
+// Bad: test input never exercises monorepo-specific logic
+it("writes monorepo config", async () => {
+  await init({ yes: true, claude: true });
+  expect(fs.existsSync(".trellis/config.yaml")).toBe(true); // True even for single-repo init
 });
 
-// Good: use input that WOULD trigger deletion without the guard
-it("safe-file-delete respects update.skip", () => {
-  // Write content whose hash IS in allowed_hashes
-  // Without update.skip, the file WOULD be deleted
-  fs.writeFileSync(deprecatedFile, originalTemplateContent);
-  config.update.skip = [".claude/commands/trellis/"];
-  await update({ force: true });
-  expect(fs.existsSync(deprecatedFile)).toBe(true); // Proves update.skip works
+// Good: create a workspace layout that requires monorepo detection
+it("writes monorepo config when workspaces are detected", async () => {
+  fs.writeFileSync(
+    "package.json",
+    JSON.stringify({ workspaces: ["packages/*"] }),
+  );
+  fs.mkdirSync("packages/app", { recursive: true });
+  fs.writeFileSync(
+    "packages/app/package.json",
+    JSON.stringify({ name: "@scope/app" }),
+  );
+
+  await init({ yes: true, claude: true });
+  expect(fs.readFileSync(".trellis/config.yaml", "utf-8")).toContain("packages:");
 });
 ```
 

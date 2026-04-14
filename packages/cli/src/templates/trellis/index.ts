@@ -11,7 +11,6 @@
  *   │   ├── common/           # Shared utilities (Python)
  *   │   ├── multi_agent/      # Multi-agent pipeline scripts (Python)
  *   │   └── *.py              # Main scripts (Python)
- *   ├── scripts-shell-archive/ # Archived shell scripts (for reference)
  *   ├── workflow.md           # Workflow guide
  *   ├── config.yaml            # Trellis configuration
  *   ├── worktree.yaml         # Worktree configuration

@@ -117,7 +117,7 @@ At a high level, the workflow is simple:
 - **v0.3.6**: task lifecycle hooks, parent-child subtasks, fix PreToolUse hook for CC v2.1.63+.
 - **v0.3.5**: hotfix for delete migration manifest field name.
 - **v0.3.4**: record-session task awareness.
-- **v0.3.1**: background watch mode for `trellis update`, improved `.gitignore` handling, docs refresh.
+- **v0.3.1**: improved `.gitignore` handling, documentation refresh.
 - **v0.3.0**: Windows compatibility and `/trellis:brainstorm`.
 
 ## FAQ

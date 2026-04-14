@@ -406,20 +406,15 @@ subprocess.run(cmd, capture_output=True, text=True)  # Garbled Chinese/Unicode
 
 When releasing a new version, ensure **all versioned files** are created/updated:
 
-- [ ] `src/migrations/manifests/{version}.json` - Migration manifest exists
-- [ ] Manifest has correct version, description, changelog
-- [ ] `pnpm build` copies manifests to `dist/`
-- [ ] Test upgrade path from older versions (not just adjacent)
+- [ ] `pnpm build` copies `src/templates/` to `dist/templates/`
+- [ ] Newly added dogfooded files are reachable through the current init/workflow path
+- [ ] Release notes reflect any user-visible workflow changes
+- [ ] Smoke-test a fresh `trellis init` in a temp project
 
-**Why this matters**: Missing manifests cause "path undefined" errors when users upgrade from older versions.
+**Why this matters**: Missing template assets or stale init paths lead to incomplete project scaffolds and hard-to-debug drift between source and distributable output.
 
 ```bash
-# Verify all expected manifests exist
-ls src/migrations/manifests/
-
-# Test upgrade path
-node -e "
-const { getMigrationsForVersion } = require('./dist/migrations/index.js');
-console.log('From 0.2.12:', getMigrationsForVersion('0.2.12', 'CURRENT').length);
-"
+# Verify templates are copied to dist
+pnpm build
+find dist/templates -maxdepth 2 -type f | head
 ```

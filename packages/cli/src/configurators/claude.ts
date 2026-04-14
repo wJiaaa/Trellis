@@ -73,35 +73,3 @@ export async function configureClaude(cwd: string): Promise<void> {
   // Copy templates, excluding build artifacts
   await copyDirFiltered(sourcePath, destPath);
 }
-
-/**
- * Configure Claude Code agents for Multi-Agent Pipeline
- *
- * @deprecated Agents are now included in the main .claude directory copy.
- * This function is kept for backwards compatibility but does nothing.
- */
-export async function configureClaudeAgents(_cwd: string): Promise<void> {
-  // Agents are now copied as part of configureClaude
-  // This function is kept for API compatibility
-}
-
-/**
- * Configure Claude Code hooks for context injection
- *
- * @deprecated Hooks are now included in the main .claude directory copy.
- * This function is kept for backwards compatibility but does nothing.
- */
-export async function configureClaudeHooks(_cwd: string): Promise<void> {
-  // Hooks are now copied as part of configureClaude
-  // This function is kept for API compatibility
-}
-
-/**
- * Configure Claude Code with full Multi-Agent Pipeline support
- *
- * This is now equivalent to just calling configureClaude since the entire
- * .claude directory is copied at once.
- */
-export async function configureClaudeFull(cwd: string): Promise<void> {
-  await configureClaude(cwd);
-}

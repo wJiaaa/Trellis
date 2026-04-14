@@ -5,10 +5,6 @@ import {
   getClaudeTemplatePath,
   getOpenCodeTemplatePath,
   getCodexTemplatePath,
-  getTrellisSourcePath,
-  getClaudeSourcePath,
-  getOpenCodeSourcePath,
-  getCodexSourcePath,
   readTrellisFile,
   readTemplate,
   readScript,
@@ -19,24 +15,15 @@ import {
 
 describe("template path functions", () => {
   it("returns existing trellis, claude, opencode, and codex directories", () => {
-    for (const p of [
+    for (const dir of [
       getTrellisTemplatePath(),
       getClaudeTemplatePath(),
       getOpenCodeTemplatePath(),
       getCodexTemplatePath(),
     ]) {
-      expect(fs.existsSync(p)).toBe(true);
-      expect(fs.statSync(p).isDirectory()).toBe(true);
+      expect(fs.existsSync(dir)).toBe(true);
+      expect(fs.statSync(dir).isDirectory()).toBe(true);
     }
-  });
-});
-
-describe("deprecated source path aliases", () => {
-  it("match their template path equivalents", () => {
-    expect(getTrellisSourcePath()).toBe(getTrellisTemplatePath());
-    expect(getClaudeSourcePath()).toBe(getClaudeTemplatePath());
-    expect(getOpenCodeSourcePath()).toBe(getOpenCodeTemplatePath());
-    expect(getCodexSourcePath()).toBe(getCodexTemplatePath());
   });
 });
 

@@ -43,7 +43,6 @@ src/
 │   ├── file-writer.ts   # File writing with conflict handling
 │   ├── project-detector.ts # Project type detection
 │   ├── template-fetcher.ts # Remote template download from GitHub
-│   └── template-hash.ts # Template hash tracking for update detection
 └── index.ts             # Package entry point (exports public API)
 ```
 
@@ -156,14 +155,14 @@ dist/
 
 ### Configurator Pattern
 
-Configurators use `cpSync` for direct directory copy (dogfooding):
+Configurators copy filtered template directories into the target project:
 
 ```typescript
 // configurators/claude.ts
 export async function configureClaude(cwd: string): Promise<void> {
-  const sourcePath = getClaudeSourcePath(); // dist/.claude/ or .claude/
+  const sourcePath = getClaudeTemplatePath();
   const destPath = path.join(cwd, ".claude");
-  cpSync(sourcePath, destPath, { recursive: true });
+  await copyDirFiltered(sourcePath, destPath);
 }
 ```
 
@@ -172,8 +171,8 @@ export async function configureClaude(cwd: string): Promise<void> {
 `extract.ts` provides utilities for reading dogfooded files:
 
 ```typescript
-// Get path to .trellis/ (works in dev and production)
-getTrellisSourcePath(): string
+// Get path to .trellis/ templates (works in dev and production)
+getTrellisTemplatePath(): string
 
 // Read file from .trellis/
 readTrellisFile(relativePath: string): string
@@ -191,7 +190,7 @@ copyTrellisDir(srcRelativePath: string, destPath: string, options?: { executable
 | Convention | Example | Usage |
 |------------|---------|-------|
 | `kebab-case` | `file-writer.ts` | All TypeScript files |
-| `kebab-case` | `multi-agent/` | All directories |
+| `snake_case` | `multi_agent/` | Python package directories |
 | `*.ts` | `init.ts` | TypeScript source files |
 | `*.md.txt` | `index.md.txt` | Template files for markdown |
 | `*.yaml.txt` | `worktree.yaml.txt` | Template files for yaml |

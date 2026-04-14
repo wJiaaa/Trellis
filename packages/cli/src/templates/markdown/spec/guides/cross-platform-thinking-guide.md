@@ -371,24 +371,73 @@ subprocess.run(cmd, capture_output=True, text=True)  # Garbled Chinese/Unicode
 
 ---
 
-## Release Checklist: Versioned Files
+## Release Checklist: Distributable Assets
 
-When releasing a new version, ensure **all versioned files** are created/updated:
+When releasing a new version, ensure the shipped templates and workflow assets stay in sync:
 
-- [ ] `src/migrations/manifests/{version}.json` - Migration manifest exists
-- [ ] Manifest has correct version, description, changelog
-- [ ] `pnpm build` copies manifests to `dist/`
-- [ ] Test upgrade path from older versions (not just adjacent)
+- [ ] `pnpm build` copies `src/templates/` to `dist/templates/`
+- [ ] Newly added dogfooded files are reachable through the current init/workflow path
+- [ ] Release notes reflect any user-visible workflow changes
+- [ ] Smoke-test a fresh `trellis init` in a temp project
 
-**Why this matters**: Missing manifests cause "path undefined" errors when users upgrade from older versions.
+**Why this matters**: Missing template assets or stale init paths lead to incomplete project scaffolds and hard-to-debug drift between source and distributable output.
 
 ```bash
-# Verify all expected manifests exist
-ls src/migrations/manifests/
-
-# Test upgrade path
-node -e "
-const { getMigrationsForVersion } = require('./dist/migrations/index.js');
-console.log('From 0.2.12:', getMigrationsForVersion('0.2.12', 'CURRENT').length);
-"
+# Verify templates are copied to dist
+pnpm build
+find dist/templates -maxdepth 2 -type f | head
 ```
+*** Add File: /Users/weijia/Documents/Trellis/packages/cli/test/templates/extract.test.ts
+import { describe, expect, it } from "vitest";
+import fs from "node:fs";
+import {
+  getTrellisTemplatePath,
+  getClaudeTemplatePath,
+  getOpenCodeTemplatePath,
+  getCodexTemplatePath,
+  readTrellisFile,
+  readTemplate,
+  readScript,
+  readMarkdown,
+  readClaudeFile,
+  readOpenCodeFile,
+} from "../../src/templates/extract.js";
+
+describe("template path functions", () => {
+  it("returns existing trellis, claude, opencode, and codex directories", () => {
+    for (const dir of [
+      getTrellisTemplatePath(),
+      getClaudeTemplatePath(),
+      getOpenCodeTemplatePath(),
+      getCodexTemplatePath(),
+    ]) {
+      expect(fs.existsSync(dir)).toBe(true);
+      expect(fs.statSync(dir).isDirectory()).toBe(true);
+    }
+  });
+});
+
+describe("trellis readers", () => {
+  it("reads workflow and script templates", () => {
+    expect(readMarkdown("workflow.md")).toContain("#");
+    expect(readScript("task.py").length).toBeGreaterThan(0);
+    expect(readTrellisFile("scripts/task.py").length).toBeGreaterThan(0);
+  });
+
+  it("throws for nonexistent files", () => {
+    expect(() => readTrellisFile("nonexistent.txt")).toThrow();
+    expect(() => readTemplate("scripts", "nonexistent.txt")).toThrow();
+  });
+});
+
+describe("platform readers", () => {
+  it("reads claude settings", () => {
+    const content = readClaudeFile("settings.json");
+    expect(() => JSON.parse(content)).not.toThrow();
+  });
+
+  it("reads an opencode file", () => {
+    const content = readOpenCodeFile("package.json");
+    expect(content.length).toBeGreaterThan(0);
+  });
+});
