@@ -95,7 +95,7 @@ def get_packages(repo_root: Path | None = None) -> dict[str, dict] | None:
         or None if not configured (single-repo mode).
 
     Example return:
-        {"cli": {"path": "packages/cli"}}
+        {"cli": {"path": "."}}
     """
     config = _load_config(repo_root)
     packages = config.get("packages")

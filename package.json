@@ -1,18 +1,72 @@
 {
-  "private": true,
+  "name": "trellis",
+  "version": "0.4.0-beta.10",
+  "description": "AI capabilities grow like ivy — Trellis provides the structure to guide them along a disciplined path",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "trellis": "./bin/trellis.js",
+    "tl": "./bin/trellis.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "prepare": "husky",
-    "build": "pnpm --filter @mindfoldhq/trellis build",
-    "test": "pnpm --filter @mindfoldhq/trellis test",
-    "lint": "pnpm --filter @mindfoldhq/trellis lint",
-    "typecheck": "pnpm --filter @mindfoldhq/trellis typecheck",
-    "release": "pnpm --filter @mindfoldhq/trellis release",
-    "release:minor": "pnpm --filter @mindfoldhq/trellis release:minor",
-    "release:beta": "pnpm --filter @mindfoldhq/trellis release:beta",
-    "release:rc": "pnpm --filter @mindfoldhq/trellis release:rc"
+    "build": "tsc && pnpm run copy-templates",
+    "copy-templates": "node scripts/copy-templates.js",
+    "dev": "tsc --watch",
+    "start": "node ./dist/cli/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ test/",
+    "lint:fix": "eslint src/ test/ --fix",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
+    "typecheck": "tsc --noEmit",
+    "lint:py": "basedpyright",
+    "lint:all": "pnpm lint && pnpm lint:py",
+    "prepublishOnly": "pnpm test && pnpm run build"
+  },
+  "keywords": [
+    "ai",
+    "workflow",
+    "claude",
+    "opencode",
+    "codex",
+    "cli",
+    "developer-tools",
+    "agent",
+    "memory",
+    "trellis"
+  ],
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "figlet": "^1.9.4",
+    "inquirer": "^9.3.7",
+    "undici": "^6.21.0"
   },
   "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.7"
-  }
+    "@eslint/js": "^9.18.0",
+    "@types/figlet": "^1.7.0",
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.17.10",
+    "@vitest/coverage-v8": "^4.0.18",
+    "basedpyright": "^1.37.2",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.21.0",
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ]
 }

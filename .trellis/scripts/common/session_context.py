@@ -165,7 +165,7 @@ def get_context_json(repo_root: Path | None = None) -> dict:
     # Package git repos (independent sub-repositories)
     pkg_git_info = _collect_package_git_info(repo_root)
 
-    result = {
+    result: dict[str, object] = {
         "git": {
             "branch": branch,
             "isClean": is_clean,

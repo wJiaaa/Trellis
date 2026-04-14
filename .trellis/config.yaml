@@ -52,8 +52,4 @@ max_journal_lines: 2000
 # Default package used when --package is not specified.
 # default_package: frontend
 
-# Auto-detected monorepo packages
-packages:
-  trellis:
-    path: packages/cli
-default_package: @mindfoldhq/trellis
+# Single-package repository: no package declarations required.
