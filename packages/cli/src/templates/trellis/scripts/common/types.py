@@ -34,8 +34,6 @@ class TaskData(TypedDict, total=False):
     scope: str | None
     package: str | None
     priority: str
-    creator: str
-    assignee: str
     createdAt: str
     completedAt: str | None
     branch: str | None
@@ -70,7 +68,6 @@ class TaskInfo:
     directory: Path
     title: str
     status: str
-    assignee: str
     priority: str
     children: tuple[str, ...]
     parent: str | None

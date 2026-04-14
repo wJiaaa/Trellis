@@ -38,7 +38,6 @@ from .paths import (
     clear_current_task,
     generate_task_date_prefix,
     get_current_task,
-    get_developer,
     get_repo_root,
     get_tasks_dir,
 )
@@ -107,8 +106,6 @@ def cmd_create(args: argparse.Namespace) -> int:
         # Inferred: default_package → None (no task.json yet for create)
         package = resolve_package(repo_root=repo_root)
 
-    creator = get_developer(repo_root)
-
     ensure_tasks_dir(repo_root)
 
     # Generate slug if not provided
@@ -145,8 +142,6 @@ def cmd_create(args: argparse.Namespace) -> int:
         "scope": None,
         "package": package,
         "priority": args.priority,
-        "creator": creator,
-        "assignee": creator,
         "createdAt": today,
         "completedAt": None,
         "branch": None,

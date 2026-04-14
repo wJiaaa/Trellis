@@ -32,8 +32,6 @@ import {
 // =============================================================================
 
 const BOOTSTRAP_TASK_NAME = "00-bootstrap-guidelines";
-const DEFAULT_TASK_OWNER = "owner";
-
 function getBootstrapPrdContent(
   projectType: ProjectType,
   packages?: DetectedPackage[],
@@ -190,8 +188,6 @@ interface TaskJson {
   status: string;
   dev_type: string;
   priority: string;
-  creator: string;
-  assignee: string;
   createdAt: string;
   completedAt: null;
   commit: null;
@@ -251,8 +247,6 @@ function getBootstrapTaskJson(
     status: "in_progress",
     dev_type: "docs",
     priority: "P1",
-    creator: DEFAULT_TASK_OWNER,
-    assignee: DEFAULT_TASK_OWNER,
     createdAt: today,
     completedAt: null,
     commit: null,

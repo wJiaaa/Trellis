@@ -50,6 +50,15 @@ describe("init() integration", () => {
     expect(fs.existsSync(path.join(tmpDir, ".opencode"))).toBe(false);
     expect(fs.existsSync(path.join(tmpDir, ".codex"))).toBe(false);
     expect(fs.existsSync(path.join(tmpDir, ".agents", "skills"))).toBe(false);
+
+    const bootstrapTask = JSON.parse(
+      fs.readFileSync(
+        path.join(tmpDir, PATHS.TASKS, "00-bootstrap-guidelines", "task.json"),
+        "utf-8",
+      ),
+    );
+    expect(bootstrapTask).not.toHaveProperty("creator");
+    expect(bootstrapTask).not.toHaveProperty("assignee");
   });
 
   it("configures all explicitly selected supported platforms", async () => {

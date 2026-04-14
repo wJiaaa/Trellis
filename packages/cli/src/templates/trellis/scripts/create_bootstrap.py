@@ -28,7 +28,6 @@ from common.paths import (
     DIR_WORKFLOW,
     DIR_TASKS,
     get_repo_root,
-    get_developer,
     get_tasks_dir,
     set_current_task,
 )
@@ -187,7 +186,7 @@ def write_prd(task_dir: Path, project_type: str, spec_base: str) -> None:
 # Task JSON
 # =============================================================================
 
-def write_task_json(task_dir: Path, developer: str, project_type: str, spec_base: str) -> None:
+def write_task_json(task_dir: Path, project_type: str, spec_base: str) -> None:
     """Write task.json file."""
     today = datetime.now().strftime("%Y-%m-%d")
 
@@ -219,8 +218,6 @@ def write_task_json(task_dir: Path, developer: str, project_type: str, spec_base
         "status": "in_progress",
         "dev_type": "docs",
         "priority": "P1",
-        "creator": developer,
-        "assignee": developer,
         "createdAt": today,
         "completedAt": None,
         "commit": None,
@@ -253,8 +250,6 @@ def main() -> int:
         project_type = "fullstack"
 
     repo_root = get_repo_root()
-    developer = get_developer(repo_root)
-
     # Resolve spec base path (monorepo: spec/<package>, single-repo: spec)
     package = resolve_package(repo_root=repo_root)
     spec_base = get_spec_base(package, repo_root)
@@ -272,7 +267,7 @@ def main() -> int:
     task_dir.mkdir(parents=True, exist_ok=True)
 
     # Write files
-    write_task_json(task_dir, developer, project_type, spec_base)
+    write_task_json(task_dir, project_type, spec_base)
     write_prd(task_dir, project_type, spec_base)
 
     # Set as current task

@@ -4,7 +4,6 @@ Multi-Agent Pipeline: Status Monitor.
 
 Usage:
     python3 status.py                     Show summary of all tasks (default)
-    python3 status.py -a <assignee>       Filter tasks by assignee
     python3 status.py --list              List all worktrees and agents
     python3 status.py --detail <task>     Detailed task status
     python3 status.py --watch <task>      Watch agent log in real-time
@@ -40,7 +39,6 @@ from .status_monitor import cmd_log, cmd_watch
 def main() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Multi-Agent Pipeline: Status Monitor")
-    parser.add_argument("-a", "--assignee", help="Filter by assignee")
     parser.add_argument(
         "--list", action="store_true", help="List all worktrees and agents"
     )
@@ -69,7 +67,7 @@ def main() -> int:
     elif args.target:
         return cmd_detail(args.target, repo_root)
     else:
-        return cmd_summary(repo_root, args.assignee)
+        return cmd_summary(repo_root)
 
 
 if __name__ == "__main__":

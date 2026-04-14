@@ -103,7 +103,6 @@ def main() -> int:
     create_args = ap.Namespace(
         title=requirement,
         slug=task_name,
-        assignee=None,
         priority="P2",
         description=""
     )

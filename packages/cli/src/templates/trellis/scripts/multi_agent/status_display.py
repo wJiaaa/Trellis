@@ -151,7 +151,6 @@ def cmd_help() -> int:
 
 Usage:
   python3 status.py                         Show summary of all tasks
-  python3 status.py -a <assignee>           Filter tasks by assignee
   python3 status.py --list                  List all worktrees and agents
   python3 status.py --detail <task>         Detailed task status
   python3 status.py --progress <task>       Quick progress view with recent activity
@@ -160,7 +159,6 @@ Usage:
   python3 status.py --registry              Show agent registry
 
 Examples:
-  python3 status.py -a taosu
   python3 status.py --detail my-task
   python3 status.py --progress my-task
   python3 status.py --watch 01-16-worktree-support
@@ -209,7 +207,7 @@ def cmd_list(repo_root: Path) -> int:
     return 0
 
 
-def cmd_summary(repo_root: Path, filter_assignee: str | None = None) -> int:
+def cmd_summary(repo_root: Path) -> int:
     """Show summary of all tasks."""
     # Import lazily to avoid circular import at module level
     from .status_monitor import get_last_tool, get_last_message
@@ -260,12 +258,7 @@ def cmd_summary(repo_root: Path, filter_assignee: str | None = None) -> int:
     for t in iter_active_tasks(tasks_dir):
         name = t.dir_name
         status = t.status
-        assignee = t.assignee or "unassigned"
         priority = t.priority
-
-        # Filter by assignee
-        if filter_assignee and assignee != filter_assignee:
-            continue
 
         # Check agent status
         agent_info = None
@@ -303,7 +296,6 @@ def cmd_summary(repo_root: Path, filter_assignee: str | None = None) -> int:
                     {
                         "name": name,
                         "priority": priority,
-                        "assignee": assignee,
                         "phase_info": phase_info_str,
                         "elapsed": elapsed,
                         "branch": branch,
@@ -343,7 +335,6 @@ def cmd_summary(repo_root: Path, filter_assignee: str | None = None) -> int:
                     "name": name,
                     "status": status,
                     "priority": priority,
-                    "assignee": assignee,
                 }
             )
 
@@ -357,7 +348,7 @@ def cmd_summary(repo_root: Path, filter_assignee: str | None = None) -> int:
                 else (Colors.YELLOW if t["priority"] == "P1" else Colors.BLUE)
             )
             print(
-                f"{Colors.GREEN}▶{Colors.NC} {Colors.CYAN}{t['name']}{Colors.NC} {Colors.GREEN}[running]{Colors.NC} {priority_color}[{t['priority']}]{Colors.NC} @{t['assignee']}"
+                f"{Colors.GREEN}▶{Colors.NC} {Colors.CYAN}{t['name']}{Colors.NC} {Colors.GREEN}[running]{Colors.NC} {priority_color}[{t['priority']}]{Colors.NC}"
             )
             print(f"  Phase:    {t['phase_info']}")
             print(f"  Elapsed:  {t['elapsed']}")
@@ -402,25 +393,17 @@ def cmd_summary(repo_root: Path, filter_assignee: str | None = None) -> int:
         print(f"{Colors.DIM}───────────────────────────────────────{Colors.NC}")
         print()
 
-    # Output regular tasks grouped by assignee
     if regular_tasks:
-        # Sort by assignee, priority, status
+        print(f"{Colors.CYAN}Tasks:{Colors.NC}")
         regular_tasks.sort(
             key=lambda x: (
-                x["assignee"],
                 {"P0": 0, "P1": 1, "P2": 2, "P3": 3}.get(x["priority"], 2),
                 {"in_progress": 0, "planning": 1, "completed": 2}.get(x["status"], 1),
+                x["name"],
             )
         )
 
-        current_assignee = None
         for t in regular_tasks:
-            if t["assignee"] != current_assignee:
-                if current_assignee is not None:
-                    print()
-                print(f"{Colors.CYAN}@{t['assignee']}:{Colors.NC}")
-                current_assignee = t["assignee"]
-
             color = status_color(t["status"])
             priority_color = (
                 Colors.RED
