@@ -10,6 +10,7 @@ vi.mock("figlet", () => ({
 vi.mock("inquirer", () => ({
   default: { prompt: vi.fn().mockResolvedValue({}) },
 }));
+import inquirer from "inquirer";
 import { init } from "../../src/commands/init.js";
 import { DIR_NAMES, PATHS } from "../../src/constants/paths.js";
 
@@ -88,6 +89,54 @@ describe("init() integration", () => {
     ).toBe(false);
     expect(
       fs.existsSync(path.join(tmpDir, ".codex", "skills", "parallel", "SKILL.md")),
+    ).toBe(true);
+  });
+
+  it("removes stale managed files during full re-initialize", async () => {
+    await init({ yes: true, claude: true, opencode: true, codex: true });
+
+    fs.mkdirSync(path.join(tmpDir, ".claude", "commands", "trellis"), {
+      recursive: true,
+    });
+    fs.mkdirSync(path.join(tmpDir, ".opencode", "commands", "trellis"), {
+      recursive: true,
+    });
+    fs.mkdirSync(path.join(tmpDir, ".agents", "skills", "start"), {
+      recursive: true,
+    });
+    fs.writeFileSync(
+      path.join(tmpDir, ".claude", "commands", "trellis", "start.md"),
+      "legacy claude start",
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, ".opencode", "commands", "trellis", "start.md"),
+      "legacy opencode start",
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, ".agents", "skills", "start", "SKILL.md"),
+      "legacy codex start",
+    );
+
+    vi.mocked(inquirer.prompt)
+      .mockResolvedValueOnce({ action: "full" })
+      .mockResolvedValueOnce({ tools: ["claude", "opencode", "codex"] });
+
+    await init({});
+
+    expect(
+      fs.existsSync(path.join(tmpDir, ".claude", "commands", "trellis", "start.md")),
+    ).toBe(false);
+    expect(
+      fs.existsSync(path.join(tmpDir, ".opencode", "commands", "trellis", "start.md")),
+    ).toBe(false);
+    expect(
+      fs.existsSync(path.join(tmpDir, ".agents", "skills", "start", "SKILL.md")),
+    ).toBe(false);
+    expect(
+      fs.existsSync(path.join(tmpDir, ".claude", "commands", "trellis", "init.md")),
+    ).toBe(true);
+    expect(
+      fs.existsSync(path.join(tmpDir, ".agents", "skills", "init", "SKILL.md")),
     ).toBe(true);
   });
 

@@ -38,16 +38,16 @@ describe("platform registry", () => {
 
 describe("managed path helpers", () => {
   it("matches supported platform paths", () => {
-    expect(isManagedPath(".claude/commands/trellis/start.md")).toBe(true);
+    expect(isManagedPath(".claude/commands/trellis/init.md")).toBe(true);
     expect(isManagedPath(".opencode/plugins/session-start.js")).toBe(true);
     expect(isManagedPath(".codex/hooks/session-start.py")).toBe(true);
-    expect(isManagedPath(".agents/skills/start/SKILL.md")).toBe(true);
+    expect(isManagedPath(".agents/skills/init/SKILL.md")).toBe(true);
   });
 
   it("matches supported platform paths with Windows separators", () => {
-    expect(isManagedPath(".claude\\commands\\trellis\\start.md")).toBe(true);
+    expect(isManagedPath(".claude\\commands\\trellis\\init.md")).toBe(true);
     expect(isManagedPath(".codex\\hooks\\session-start.py")).toBe(true);
-    expect(isManagedPath(".agents\\skills\\start\\SKILL.md")).toBe(true);
+    expect(isManagedPath(".agents\\skills\\init\\SKILL.md")).toBe(true);
   });
 
   it("rejects removed platforms", () => {

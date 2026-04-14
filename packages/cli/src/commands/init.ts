@@ -5,6 +5,7 @@ import figlet from "figlet";
 import inquirer from "inquirer";
 import { createWorkflowStructure } from "../configurators/workflow.js";
 import {
+  ALL_MANAGED_DIRS,
   getInitToolChoices,
   resolveCliFlag,
   configurePlatform,
@@ -416,6 +417,23 @@ interface InitOptions {
   monorepo?: boolean;
 }
 
+const ROOT_MANAGED_FILES = ["AGENTS.md"];
+
+function resetManagedState(cwd: string): void {
+  const managedPaths = [...ALL_MANAGED_DIRS, ...ROOT_MANAGED_FILES]
+    .map((relativePath) => path.join(cwd, relativePath))
+    .sort((left, right) => right.length - left.length);
+
+  for (const managedPath of managedPaths) {
+    fs.rmSync(managedPath, { recursive: true, force: true });
+  }
+
+  const agentsRoot = path.join(cwd, ".agents");
+  if (fs.existsSync(agentsRoot) && fs.readdirSync(agentsRoot).length === 0) {
+    fs.rmSync(agentsRoot, { recursive: true, force: true });
+  }
+}
+
 // Compile-time check: every CliFlag must be a key of InitOptions.
 // If a new platform is added to CliFlag but not to InitOptions, this line errors.
 // Uses [X] extends [Y] to prevent distributive conditional behavior.
@@ -474,6 +492,7 @@ interface InitAnswers {
 export async function init(options: InitOptions): Promise<void> {
   const cwd = process.cwd();
   const isFirstInit = !fs.existsSync(path.join(cwd, DIR_NAMES.WORKFLOW));
+  let shouldResetManagedState = false;
 
   // Generate ASCII art banner dynamically using FIGlet "Rebel" font
   const banner = figlet.textSync("Trellis", { font: "Rebel" });
@@ -503,6 +522,7 @@ export async function init(options: InitOptions): Promise<void> {
     const reinitDone = await handleReinit(cwd, options);
     if (reinitDone) return;
     // reinitDone === false means user chose "full re-initialize" → fall through
+    shouldResetManagedState = true;
   }
 
   // Detect project type (silent - no output)
@@ -607,6 +627,10 @@ export async function init(options: InitOptions): Promise<void> {
       chalk.yellow("No tools selected. At least one tool is required."),
     );
     return;
+  }
+
+  if (shouldResetManagedState) {
+    resetManagedState(cwd);
   }
 
   // ==========================================================================

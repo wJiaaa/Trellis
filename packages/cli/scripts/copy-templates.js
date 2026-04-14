@@ -16,7 +16,7 @@
  * because those may be customized for the Trellis project itself.
  */
 
-import { cpSync, readdirSync, statSync, mkdirSync } from "node:fs";
+import { cpSync, readdirSync, rmSync, statSync, mkdirSync } from "node:fs";
 import { join, extname } from "node:path";
 
 /**
@@ -39,6 +39,9 @@ function copyDir(src, dest) {
     }
   }
 }
+
+// Remove stale files first so deleted templates do not linger in dist/.
+rmSync("dist/templates", { recursive: true, force: true });
 
 // Copy src/templates to dist/templates
 copyDir("src/templates", "dist/templates");
