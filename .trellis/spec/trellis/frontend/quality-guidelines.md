@@ -6,46 +6,58 @@
 
 ## Overview
 
-<!--
-Document your project's quality standards here.
+**N/A - This project is a CLI tool without frontend-specific quality concerns.**
 
-Questions to answer:
-- What patterns are forbidden?
-- What linting rules do you enforce?
-- What are your testing requirements?
-- What code review standards apply?
--->
-
-(To be filled by the team)
+Frontend quality guidelines (accessibility, browser testing, visual regression) do not apply to CLI tools.
 
 ---
 
-## Forbidden Patterns
+## Shared Quality Standards
 
-<!-- Patterns that should never be used and why -->
+Quality standards that apply to both frontend and backend:
 
-(To be filled by the team)
+### TypeScript Strict Mode
+
+All code must pass strict type checking.
+
+```bash
+pnpm typecheck
+```
+
+### ESLint + Prettier
+
+Linting and formatting are enforced.
+
+```bash
+pnpm lint
+```
+
+Pre-commit hooks auto-fix formatting.
+
+### Testing with Vitest
+
+Tests are required for all modules.
+
+```bash
+pnpm test
+```
+
+See [Backend Quality Guidelines](../backend/quality-guidelines.md) for detailed patterns.
 
 ---
 
-## Required Patterns
+## If This Were a Frontend Project
 
-<!-- Patterns that must always be used -->
-
-(To be filled by the team)
-
----
-
-## Testing Requirements
-
-<!-- What level of testing is expected -->
-
-(To be filled by the team)
+Frontend quality guidelines would cover:
+- Accessibility (a11y) testing
+- Browser compatibility testing
+- Visual regression testing
+- Performance benchmarks
 
 ---
 
-## Code Review Checklist
+## Anti-patterns
 
-<!-- What reviewers should check -->
-
-(To be filled by the team)
+- **Don't** add frontend-specific lint rules
+- **Don't** use browser testing frameworks
+- **Don't** add accessibility testing for CLI output

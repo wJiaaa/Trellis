@@ -6,46 +6,49 @@
 
 ## Overview
 
-<!--
-Document your project's database conventions here.
+**N/A - This project does not use a database.**
 
-Questions to answer:
-- What ORM/query library do you use?
-- How are migrations managed?
-- What are the naming conventions for tables/columns?
-- How do you handle transactions?
--->
-
-(To be filled by the team)
+This is a CLI tool that:
+- Reads/writes files to the filesystem using Node.js `fs` module
+- Does not persist data in a database
+- Does not use an ORM or query library
 
 ---
 
-## Query Patterns
+## File Storage Patterns
 
-<!-- How should queries be written? Batch operations? -->
+Instead of a database, this project uses:
 
-(To be filled by the team)
+### JSON Files for Configuration
+
+Example: `src/commands/init.ts`
+
+```typescript
+const taskJson = getBootstrapTaskJson(projectType, packages);
+fs.writeFileSync(
+  path.join(taskDir, FILE_NAMES.TASK_JSON),
+  JSON.stringify(taskJson, null, 2),
+  "utf-8",
+);
+```
+
+### Directory-based Storage
+
+Example: `src/constants/paths.ts`
+
+```typescript
+export const PATHS = {
+  WORKFLOW: ".trellis",
+  WORKSPACE: ".trellis/workspace",
+  TASKS: ".trellis/tasks",
+  SPEC: ".trellis/spec",
+} as const;
+```
 
 ---
 
-## Migrations
+## Anti-patterns
 
-<!-- How to create and run migrations -->
-
-(To be filled by the team)
-
----
-
-## Naming Conventions
-
-<!-- Table names, column names, index names -->
-
-(To be filled by the team)
-
----
-
-## Common Mistakes
-
-<!-- Database-related mistakes your team has made -->
-
-(To be filled by the team)
+- **Don't** introduce database dependencies
+- **Don't** use localStorage (this is a CLI, not a browser app)
+- **Don't** use complex file formats - prefer JSON or YAML

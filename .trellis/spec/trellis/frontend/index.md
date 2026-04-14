@@ -6,7 +6,9 @@
 
 ## Overview
 
-This directory contains guidelines for frontend development. Fill in each file with your project's specific conventions.
+**N/A - This project is a CLI tool without a frontend.**
+
+This directory contains placeholder guidelines. Frontend patterns do not apply to this TypeScript CLI project.
 
 ---
 
@@ -14,25 +16,35 @@ This directory contains guidelines for frontend development. Fill in each file w
 
 | Guide | Description | Status |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
-| [Component Guidelines](./component-guidelines.md) | Component patterns, props, composition | To fill |
-| [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |
-| [State Management](./state-management.md) | Local state, global state, server state | To fill |
-| [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
-| [Type Safety](./type-safety.md) | Type patterns, validation | To fill |
+| [Directory Structure](./directory-structure.md) | N/A - CLI tool | N/A |
+| [Component Guidelines](./component-guidelines.md) | N/A - CLI tool | N/A |
+| [Hook Guidelines](./hook-guidelines.md) | N/A - CLI tool (note: Python hooks exist) | N/A |
+| [State Management](./state-management.md) | N/A - CLI tool | N/A |
+| [Quality Guidelines](./quality-guidelines.md) | Shared with backend | See Backend |
+| [Type Safety](./type-safety.md) | TypeScript patterns | Filled |
 
 ---
 
-## How to Fill These Guidelines
+## What This Project Uses Instead
 
-For each guideline file:
+This CLI project uses:
 
-1. Document your project's **actual conventions** (not ideals)
-2. Include **code examples** from your codebase
-3. List **forbidden patterns** and why
-4. Add **common mistakes** your team has made
+- **Commander.js** for CLI argument parsing
+- **Inquirer.js** for interactive prompts
+- **Chalk** for colored output
+- **Vitest** for testing
 
-The goal is to help AI assistants and future maintainers understand how YOUR project works.
+See [Backend Guidelines](../backend/index.md) for applicable patterns.
+
+---
+
+## If Adding a Frontend
+
+If a web UI is added in the future, guidelines should be filled for:
+- React/Vue component patterns
+- State management (Zustand, React Query)
+- Accessibility requirements
+- Browser testing
 
 ---
 

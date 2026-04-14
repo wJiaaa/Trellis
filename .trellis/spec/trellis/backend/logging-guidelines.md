@@ -1,51 +1,156 @@
 # Logging Guidelines
 
-> How logging is done in this project.
+> How logging is done in this CLI project.
 
 ---
 
 ## Overview
 
-<!--
-Document your project's logging conventions here.
-
-Questions to answer:
-- What logging library do you use?
-- What are the log levels and when to use each?
-- What should be logged?
-- What should NOT be logged (PII, secrets)?
--->
-
-(To be filled by the team)
+This project uses `chalk` for colored console output and `console.log/console.error` for CLI messages. There is no structured logging library - output goes directly to the terminal.
 
 ---
 
-## Log Levels
+## Output Functions
 
-<!-- When to use each level: debug, info, warn, error -->
+Use `console.log` for normal output and `console.error` for errors.
 
-(To be filled by the team)
+```typescript
+console.log(chalk.cyan(`\n${banner.trimEnd()}`));
+console.error(chalk.red("Error:"), error instanceof Error ? error.message : error);
+```
 
 ---
 
-## Structured Logging
+## Color Usage with Chalk
 
-<!-- Log format, required fields -->
+### chalk.cyan - Banner/Headers
 
-(To be filled by the team)
+Use for banners and major section headers.
+
+Example: `src/commands/init.ts`
+
+```typescript
+console.log(chalk.cyan(`\n${banner.trimEnd()}`));
+```
+
+### chalk.blue - Progress/Actions
+
+Use for progress messages and action descriptions.
+
+Example: `src/commands/init.ts`
+
+```typescript
+console.log(chalk.blue("📁 Creating workflow structure..."));
+console.log(chalk.blue(`📝 Configuring ${AI_TOOLS[platformId].name}...`));
+```
+
+### chalk.gray - Neutral/Skip Messages
+
+Use for neutral information and skipped items.
+
+Example: `src/utils/file-writer.ts`
+
+```typescript
+console.log(chalk.gray(`  ○ Skipped: ${displayPath} (already exists)`));
+```
+
+### chalk.yellow - Warnings/Overwrites
+
+Use for warnings and overwritten files.
+
+Example: `src/commands/init.ts`
+
+```typescript
+console.log(chalk.yellow("No tools selected. At least one tool is required."));
+```
+
+Example: `src/utils/file-writer.ts`
+
+```typescript
+console.log(chalk.yellow(`  ↻ Overwritten: ${displayPath}`));
+```
+
+### chalk.red - Errors
+
+Use for error messages.
+
+Example: `src/cli/index.ts`
+
+```typescript
+console.error(chalk.red("Error:"), error instanceof Error ? error.message : error);
+```
+
+### chalk.green - Success
+
+Use for success messages.
+
+Example: `src/commands/init.ts`
+
+```typescript
+console.log(chalk.green("✓ All available platforms are already configured."));
+```
+
+### chalk.white - Emphasis
+
+Use for emphasized text in longer messages.
+
+Example: `src/commands/init.ts`
+
+```typescript
+console.log(chalk.green("  ✓ ") + chalk.white("Thinking Guides + Ralph Loop: Think first, verify after"));
+```
+
+---
+
+## Message Patterns
+
+### Action Prefixes
+
+Use emoji prefixes to indicate action type:
+
+- `📁` - Directory creation
+- `📝` - Configuration/writing
+- `🔍` - Detection/search
+- `📌` - Notice/important info
+- `✓` - Success/completion
+- `○` - Skip
+- `↻` - Overwrite
+- `+` - Append
+
+Example: `src/commands/init.ts`
+
+```typescript
+console.log(chalk.blue("📁 Creating workflow structure..."));
+console.log(chalk.blue("📝 Configuring Claude Code..."));
+console.log(chalk.blue("🔍 Detected monorepo packages:"));
+```
+
+### Indentation
+
+Use 2-3 space indentation for nested messages.
+
+Example: `src/commands/init.ts`
+
+```typescript
+console.log(chalk.blue("\n🔍 Detected monorepo packages:"));
+for (const pkg of detected) {
+  console.log(chalk.gray(`   - ${pkg.name}`) + chalk.gray(` (${pkg.path})`));
+}
+```
 
 ---
 
 ## What to Log
 
-<!-- Important events to log -->
-
-(To be filled by the team)
+- User-facing progress messages during init
+- Configuration status (created/skipped/overwritten)
+- Detected project information
+- Error messages with actionable information
 
 ---
 
 ## What NOT to Log
 
-<!-- Sensitive data, PII, secrets -->
-
-(To be filled by the team)
+- Internal debug information (use comments instead)
+- Stack traces (only in development)
+- Sensitive information (none in this CLI)

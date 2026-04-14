@@ -6,46 +6,63 @@
 
 ## Overview
 
-<!--
-Document your project's hook conventions here.
+**N/A - This project is a CLI tool without React hooks.**
 
-Questions to answer:
-- What custom hooks do you have?
-- How do you handle data fetching?
-- What are the naming conventions?
-- How do you share stateful logic?
--->
-
-(To be filled by the team)
+This project does not use React hooks because:
+- No React runtime
+- No component lifecycle
+- No useState/useEffect patterns
 
 ---
 
-## Custom Hook Patterns
+## CLI Hooks (Python)
 
-<!-- How to create and structure custom hooks -->
+This project uses **Python hooks** for AI platform integration, not React hooks.
 
-(To be filled by the team)
+Example hook files are stored in templates:
 
----
+```
+src/templates/claude/hooks/
+src/templates/codex/hooks/
+```
 
-## Data Fetching
-
-<!-- How data fetching is handled (React Query, SWR, etc.) -->
-
-(To be filled by the team)
-
----
-
-## Naming Conventions
-
-<!-- Hook naming rules (use*, etc.) -->
-
-(To be filled by the team)
+These Python hooks run during AI platform events (session start, statusline updates).
 
 ---
 
-## Common Mistakes
+## Utility Functions Instead of Hooks
 
-<!-- Hook-related mistakes your team has made -->
+In CLI code, utility functions serve the same purpose as custom hooks in React.
 
-(To be filled by the team)
+Example: `src/utils/file-writer.ts`
+
+```typescript
+export function ensureDir(dirPath: string): void {
+  fs.mkdirSync(dirPath, { recursive: true });
+}
+
+export async function writeFile(
+  filePath: string,
+  content: string,
+): Promise<boolean> {
+  // ...
+}
+```
+
+---
+
+## If This Were a Frontend Project
+
+Hook guidelines would cover:
+- Custom hook naming (useXxx)
+- Data fetching patterns
+- State management hooks
+- Hook composition
+
+---
+
+## Anti-patterns
+
+- **Don't** create React-style hooks in CLI code
+- **Don't** use useState/useEffect patterns
+- **Don't** confuse Python hooks with React hooks

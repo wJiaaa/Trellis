@@ -22,34 +22,45 @@ describe("settingsTemplate", () => {
 });
 
 // =============================================================================
-// settingsTemplate — SessionStart hook matchers (MIN-231)
+// settingsTemplate — Claude hook configuration
 // =============================================================================
 
-describe("settingsTemplate SessionStart matchers", () => {
+describe("settingsTemplate hook configuration", () => {
   const settings = JSON.parse(settingsTemplate);
-  const sessionStartEntries = settings.hooks.SessionStart as {
+  const preToolUseEntries = settings.hooks.PreToolUse as {
+    matcher: string;
+    hooks: { type: string; command: string; timeout: number }[];
+  }[];
+  const subagentStopEntries = settings.hooks.SubagentStop as {
     matcher: string;
     hooks: { type: string; command: string; timeout: number }[];
   }[];
 
-  it("includes startup, clear, and compact matchers", () => {
-    const matchers = sessionStartEntries.map((e) => e.matcher);
-    expect(matchers).toContain("startup");
-    expect(matchers).toContain("clear");
-    expect(matchers).toContain("compact");
+  it("does not include SessionStart or statusLine hooks", () => {
+    expect(settings).not.toHaveProperty("statusLine");
+    expect(settings.hooks).not.toHaveProperty("SessionStart");
   });
 
-  it("all SessionStart entries invoke the same session-start.py hook", () => {
-    for (const entry of sessionStartEntries) {
+  it("keeps PreToolUse hooks for Task and Agent", () => {
+    const matchers = preToolUseEntries.map((e) => e.matcher);
+    expect(matchers).toEqual(["Task", "Agent"]);
+
+    for (const entry of preToolUseEntries) {
       expect(entry.hooks).toHaveLength(1);
-      expect(entry.hooks[0].command).toContain("session-start.py");
+      expect(entry.hooks[0].command).toContain("inject-subagent-context.py");
     }
   });
 
-  it("all SessionStart entries use {{PYTHON_CMD}} placeholder", () => {
-    for (const entry of sessionStartEntries) {
+  it("uses placeholders for the remaining Claude hooks", () => {
+    for (const entry of [...preToolUseEntries, ...subagentStopEntries]) {
       expect(entry.hooks[0].command).toContain("{{PYTHON_CMD}}");
     }
+  });
+
+  it("keeps SubagentStop hook for the check agent", () => {
+    expect(subagentStopEntries).toHaveLength(1);
+    expect(subagentStopEntries[0].matcher).toBe("check");
+    expect(subagentStopEntries[0].hooks[0].command).toContain("ralph-loop.py");
   });
 });
 

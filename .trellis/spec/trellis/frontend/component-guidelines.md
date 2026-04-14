@@ -6,54 +6,60 @@
 
 ## Overview
 
-<!--
-Document your project's component conventions here.
+**N/A - This project is a CLI tool without a frontend.**
 
-Questions to answer:
-- What component patterns do you use?
-- How are props defined?
-- How do you handle composition?
-- What accessibility standards apply?
--->
-
-(To be filled by the team)
+This project does not have:
+- React/Vue/Angular components
+- JSX/TSX files
+- CSS styling
+- UI rendering
 
 ---
 
-## Component Structure
+## CLI "Components"
 
-<!-- Standard structure of a component file -->
+Instead of UI components, this CLI uses:
 
-(To be filled by the team)
+### Command Handlers
+
+CLI "components" are command handlers that process user input.
+
+Example: `src/commands/init.ts`
+
+```typescript
+export async function init(options: InitOptions): Promise<void> {
+  const cwd = process.cwd();
+  // ... command logic
+}
+```
+
+### Configurators
+
+Template application logic is modular like components.
+
+Example: `src/configurators/index.ts`
+
+```typescript
+const PLATFORM_FUNCTIONS: Record<AITool, PlatformFunctions> = {
+  "claude-code": { configure: configureClaude, ... },
+  "opencode": { configure: configureOpenCode, ... },
+  "codex": { configure: configureCodex, ... },
+};
+```
 
 ---
 
-## Props Conventions
+## If This Were a Frontend Project
 
-<!-- How props should be defined and typed -->
-
-(To be filled by the team)
-
----
-
-## Styling Patterns
-
-<!-- How styles are applied (CSS modules, styled-components, Tailwind, etc.) -->
-
-(To be filled by the team)
+Component guidelines would cover:
+- Component file structure
+- Props conventions
+- Styling patterns
+- Accessibility requirements
 
 ---
 
-## Accessibility
+## Anti-patterns
 
-<!-- A11y requirements and patterns -->
-
-(To be filled by the team)
-
----
-
-## Common Mistakes
-
-<!-- Component-related mistakes your team has made -->
-
-(To be filled by the team)
+- **Don't** create JSX/TSX files in this CLI project
+- **Don't** use component lifecycle patterns (useEffect, useState)

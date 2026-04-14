@@ -48,6 +48,12 @@ describe("init() integration", () => {
     expect(fs.existsSync(path.join(tmpDir, PATHS.SPEC))).toBe(true);
 
     expect(fs.existsSync(path.join(tmpDir, ".claude"))).toBe(true);
+    expect(
+      fs.existsSync(path.join(tmpDir, ".claude", "hooks", "session-start.py")),
+    ).toBe(false);
+    expect(
+      fs.existsSync(path.join(tmpDir, ".claude", "hooks", "statusline.py")),
+    ).toBe(false);
     expect(fs.existsSync(path.join(tmpDir, ".opencode"))).toBe(false);
     expect(fs.existsSync(path.join(tmpDir, ".codex"))).toBe(false);
     expect(fs.existsSync(path.join(tmpDir, ".agents", "skills"))).toBe(false);

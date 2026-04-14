@@ -2,26 +2,30 @@ Launch a dedicated check pass for the current task. Use this after implementatio
 
 Execute these steps:
 
-1. **Identify changed files**:
+1. **Ensure a current task exists**:
    ```bash
-   git diff --name-only HEAD
+   python3 ./.trellis/scripts/get_context.py
+   ```
+   If no current task is active, stop and tell the user to run `/trellis:task-start` first.
+
+2. **Launch the check subagent explicitly**:
+   ```
+   Task(
+     subagent_type: "check",
+     prompt: "Run the normal Trellis check workflow for the current task: inspect git diff, review the injected quality specs, fix issues directly, run lint and typecheck, and report the final verification results.",
+     model: "opus",
+     run_in_background: true
+   )
    ```
 
-2. **Determine which spec modules apply** based on the changed file paths:
-   ```bash
-   python3 ./.trellis/scripts/get_context.py --mode packages
-   ```
+3. **Do not run the check inline in the main session** unless delegation is impossible.
 
-3. **Read the spec index** for each relevant module:
-   ```bash
-   cat .trellis/spec/<package>/<layer>/index.md
-   ```
-   Follow the **"Quality Check"** section in the index.
+## Hook Behavior
 
-4. **Read the specific guideline files** referenced in the Quality Check section (e.g., `quality-guidelines.md`, `conventions.md`). The index is NOT the goal — it points you to the actual guideline files. Read those files and review your code against them.
+Because this command uses `Task(subagent_type: "check", ...)`, Claude's hooks will:
 
-5. **Run lint and typecheck** for the affected package.
-
-6. **Report any violations** and fix them if found.
+- inject `check.jsonl` or fallback check context before the subagent runs
+- enforce the `check` subagent stop gate through `SubagentStop`
+- require the subagent to complete verification before it can finish
 
 This command satisfies the required check gate before `/trellis:finish-work`.

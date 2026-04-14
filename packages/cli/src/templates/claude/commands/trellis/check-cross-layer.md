@@ -18,16 +18,28 @@ Launch a dedicated cross-layer check pass for the current task. Use this after i
 
 ## Execution Steps
 
-### 1. Identify Change Scope
+### 1. Ensure a current task exists
 
 ```bash
-git status
-git diff --name-only
+python3 ./.trellis/scripts/get_context.py
 ```
 
-### 2. Select Applicable Check Dimensions
+If no current task is active, stop and tell the user to run `/trellis:task-start` first.
 
-Based on your change type, execute relevant checks below:
+### 2. Launch the check subagent explicitly
+
+```
+Task(
+  subagent_type: "check",
+  prompt: "Run the Trellis cross-layer check workflow for the current task. Use the injected check context plus the cross-layer checklist below, inspect the diff, fix issues directly, run required verification, and report results by check dimension.",
+  model: "opus",
+  run_in_background: true
+)
+```
+
+### 3. Cross-Layer Checklist Reference
+
+The delegated `check` subagent should evaluate the current task against the following dimensions:
 
 ---
 

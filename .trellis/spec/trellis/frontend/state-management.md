@@ -6,46 +6,76 @@
 
 ## Overview
 
-<!--
-Document your project's state management conventions here.
+**N/A - This project is a CLI tool without frontend state.**
 
-Questions to answer:
-- What state management solution do you use?
-- How is local vs global state decided?
-- How do you handle server state?
-- What are the patterns for derived state?
--->
-
-(To be filled by the team)
+This project does not have:
+- Global state store (Redux, Zustand, etc.)
+- Local component state
+- Server state caching (React Query, SWR)
+- URL state
 
 ---
 
-## State Categories
+## CLI State Patterns
 
-<!-- Local state, global state, server state, URL state -->
+CLI state is simpler and uses:
 
-(To be filled by the team)
+### Global Module State
+
+Use module-level variables for global configuration.
+
+Example: `src/utils/file-writer.ts`
+
+```typescript
+let globalWriteMode: WriteMode = "ask";
+
+export function setWriteMode(mode: WriteMode): void {
+  globalWriteMode = mode;
+}
+
+export function getWriteMode(): WriteMode {
+  return globalWriteMode;
+}
+```
+
+### Process-based State
+
+State is ephemeral per process invocation - no persistence needed.
+
+Example: `src/commands/init.ts`
+
+```typescript
+const cwd = process.cwd(); // Current working directory
+const isFirstInit = !fs.existsSync(path.join(cwd, DIR_NAMES.WORKFLOW));
+```
+
+### File-based State
+
+Persistent state is stored in files, not in memory.
+
+Example: `src/constants/paths.ts`
+
+```typescript
+export const PATHS = {
+  CURRENT_TASK_FILE: ".trellis/.current-task",
+  WORKSPACE: ".trellis/workspace",
+} as const;
+```
 
 ---
 
-## When to Use Global State
+## If This Were a Frontend Project
 
-<!-- Criteria for promoting state to global -->
-
-(To be filled by the team)
-
----
-
-## Server State
-
-<!-- How server data is cached and synchronized -->
-
-(To be filled by the team)
+State management guidelines would cover:
+- Local vs global state decisions
+- Server state caching
+- State persistence
+- State synchronization
 
 ---
 
-## Common Mistakes
+## Anti-patterns
 
-<!-- State management mistakes your team has made -->
-
-(To be filled by the team)
+- **Don't** use Redux/Zustand patterns in CLI code
+- **Don't** create in-memory state stores
+- **Don't** use React Query/SWR patterns

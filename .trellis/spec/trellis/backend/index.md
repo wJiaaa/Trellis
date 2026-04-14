@@ -1,12 +1,12 @@
 # Backend Development Guidelines
 
-> Best practices for backend development in this project.
+> Best practices for TypeScript CLI development in this project.
 
 ---
 
 ## Overview
 
-This directory contains guidelines for backend development. Fill in each file with your project's specific conventions.
+This directory contains guidelines for backend/CLI development in the Trellis project. Each file documents actual conventions discovered from the codebase.
 
 ---
 
@@ -14,24 +14,42 @@ This directory contains guidelines for backend development. Fill in each file wi
 
 | Guide | Description | Status |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
-| [Database Guidelines](./database-guidelines.md) | ORM patterns, queries, migrations | To fill |
-| [Error Handling](./error-handling.md) | Error types, handling strategies | To fill |
-| [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
-| [Logging Guidelines](./logging-guidelines.md) | Structured logging, log levels | To fill |
+| [Directory Structure](./directory-structure.md) | Module organization and file layout | Filled |
+| [Database Guidelines](./database-guidelines.md) | N/A - No database in CLI | N/A |
+| [Error Handling](./error-handling.md) | Try/catch with chalk.red, process.exit(1) | Filled |
+| [Quality Guidelines](./quality-guidelines.md) | ESLint, TypeScript strict, Vitest | Filled |
+| [Logging Guidelines](./logging-guidelines.md) | Chalk for colored console output | Filled |
 
 ---
 
-## How to Fill These Guidelines
+## Key Conventions
 
-For each guideline file:
+### Commands
 
-1. Document your project's **actual conventions** (not ideals)
-2. Include **code examples** from your codebase
-3. List **forbidden patterns** and why
-4. Add **common mistakes** your team has made
+CLI commands go in `src/commands/`. Each command exports an async function.
 
-The goal is to help AI assistants and future maintainers understand how YOUR project works.
+### Utilities
+
+Utility functions go in `src/utils/`. Use named exports.
+
+### Types
+
+Type definitions go in `src/types/`. Use union types instead of enums.
+
+### Constants
+
+Application constants go in `src/constants/`. Use `as const` for immutability.
+
+---
+
+## Quick Reference
+
+```bash
+pnpm lint        # ESLint for TypeScript
+pnpm lint:py     # Type checking for Python
+pnpm typecheck   # TypeScript type checking
+pnpm test        # Run Vitest tests
+```
 
 ---
 
