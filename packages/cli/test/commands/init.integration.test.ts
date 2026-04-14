@@ -60,7 +60,7 @@ describe("init() integration", () => {
     expect(fs.existsSync(path.join(tmpDir, ".codex"))).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, ".agents", "skills"))).toBe(true);
     expect(
-      fs.existsSync(path.join(tmpDir, ".agents", "skills", "start", "SKILL.md")),
+      fs.existsSync(path.join(tmpDir, ".agents", "skills", "init", "SKILL.md")),
     ).toBe(true);
     expect(
       fs.existsSync(path.join(tmpDir, ".codex", "agents", "check.toml")),

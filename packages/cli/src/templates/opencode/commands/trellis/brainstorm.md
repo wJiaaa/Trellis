@@ -11,7 +11,7 @@ Guide AI through collaborative requirements discovery **before implementation**,
 
 ## When to Use
 
-Triggered from `/trellis:start` when the user describes a development task, especially when:
+Triggered from `/trellis:init` when the user describes a development task, especially when:
 
 * requirements are unclear or evolving
 * there are multiple valid implementation paths
@@ -482,6 +482,7 @@ The task directory and PRD already exist from brainstorm, so Phase 1 of the Task
 
 | Command | When to Use |
 |---------|-------------|
-| `/trellis:start` | Entry point that triggers brainstorm |
+| `/trellis:init` | Entry point that recommends brainstorm |
+| `/trellis:task-create` | Use after requirements are clear |
 | `/trellis:finish-work` | After implementation is complete |
 | `/trellis:update-spec` | If new patterns emerge during work |

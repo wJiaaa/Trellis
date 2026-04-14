@@ -3,7 +3,7 @@
 
 These instructions are for AI assistants working in this project.
 
-Use the `/trellis:start` command when starting a new session to:
+Use the `/trellis:init` command when starting a new session to:
 - Understand current project context
 - Read relevant guidelines
 

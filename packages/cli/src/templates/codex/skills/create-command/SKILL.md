@@ -92,8 +92,8 @@ Description:
 
 | Skill Type | Prefix | Example |
 |------------|--------|---------|
-| Session Start | `start` | `start` |
-| Pre-development | `before-` | `before-dev` |
+| Session Init | `init` | `init` |
+| Task Lifecycle | `task-` | `task-create` |
 | Check | `check-` | `check` |
 | Record | `record-` | `record-session` |
 | Generate | `generate-` | `generate-api-doc` |

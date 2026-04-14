@@ -156,7 +156,7 @@ The following skills are for users (not AI):
 | Skill | Description |
 |-------|-------------|
 | `$parallel` | Start Multi-Agent Pipeline (this skill) |
-| `$start` | Start normal development mode (single process) |
+| `$init` | Initialize the main session |
 | `$record-session` | Record session progress |
 | `$finish-work` | Pre-completion checklist |
 

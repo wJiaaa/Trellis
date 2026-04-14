@@ -1,6 +1,6 @@
 # Cross-Layer Check
 
-Check if your changes considered all dimensions. Most bugs come from "didn't think of it", not lack of technical skill.
+Launch a dedicated cross-layer check pass for the current task. Use this after implementation finishes when the task spans layers or has high downstream impact.
 
 > **Note**: This is a **post-implementation** safety net. Ideally, read the [Pre-Implementation Checklist](.trellis/spec/guides/pre-implementation-checklist.md) **before** writing code.
 
@@ -151,3 +151,5 @@ Report:
 1. Which dimensions your changes involve
 2. Check results for each dimension
 3. Issues found and fix suggestions
+
+This command satisfies the required check gate before `/trellis:finish-work`.

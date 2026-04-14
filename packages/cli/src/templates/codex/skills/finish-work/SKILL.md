@@ -9,6 +9,8 @@ Before submitting or committing, use this checklist to ensure work completeness.
 
 **Timing**: After code is written and tested, before commit
 
+**Hard prerequisite**: The user must already have run either `$check` or `$check-cross-layer` for this task. If neither check was run, stop here and tell the user to run the correct check first.
+
 ---
 
 ## Checklist
@@ -125,7 +127,7 @@ git diff --name-only
 
 ```
 Development Flow:
-  Write code -> Test -> $finish-work -> git commit -> $record-session
+  Write code -> $check or $check-cross-layer -> $finish-work -> git commit -> $record-session
                           |                              |
                    Ensure completeness              Record progress
                    

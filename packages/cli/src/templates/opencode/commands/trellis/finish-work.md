@@ -4,6 +4,8 @@ Before submitting or committing, use this checklist to ensure work completeness.
 
 **Timing**: After code is written and tested, before commit
 
+**Hard prerequisite**: The user must already have run either `/trellis:check` or `/trellis:check-cross-layer` for this task. If neither check was run, stop here and tell the user to run the correct check first.
+
 ---
 
 ## Checklist
@@ -121,7 +123,7 @@ git diff --name-only
 
 ```
 Development Flow:
-  Write code -> Test -> /trellis:finish-work -> git commit -> /trellis:record-session
+  Write code -> /trellis:check or /trellis:check-cross-layer -> /trellis:finish-work -> git commit -> /trellis:record-session
                           |                              |
                    Ensure completeness              Record progress
                    

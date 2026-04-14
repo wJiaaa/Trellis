@@ -7,7 +7,6 @@ import {
 } from "../../src/templates/codex/index.js";
 
 const EXPECTED_SKILL_NAMES = [
-  "before-dev",
   "brainstorm",
   "break-loop",
   "check",
@@ -15,9 +14,10 @@ const EXPECTED_SKILL_NAMES = [
   "create-command",
   "finish-work",
   "improve-ut",
-  "integrate-skill",
+  "init",
   "record-session",
-  "start",
+  "task-create",
+  "task-start",
   "update-spec",
 ];
 

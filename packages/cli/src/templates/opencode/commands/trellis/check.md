@@ -1,4 +1,4 @@
-Check if the code you just wrote follows the development guidelines.
+Launch a dedicated check pass for the current task. Use this after implementation finishes for normal tasks.
 
 Execute these steps:
 
@@ -23,3 +23,5 @@ Execute these steps:
 5. **Run lint and typecheck** for the affected package.
 
 6. **Report any violations** and fix them if found.
+
+This command satisfies the required check gate before `/trellis:finish-work`.

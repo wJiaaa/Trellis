@@ -58,17 +58,17 @@ describe("settingsTemplate SessionStart matchers", () => {
 // =============================================================================
 
 const EXPECTED_COMMAND_NAMES = [
-  "before-dev",
   "brainstorm",
   "break-loop",
   "check-cross-layer",
   "check",
   "create-command",
   "finish-work",
-  "integrate-skill",
+  "init",
   "parallel",
   "record-session",
-  "start",
+  "task-create",
+  "task-start",
   "update-spec",
 ];
 

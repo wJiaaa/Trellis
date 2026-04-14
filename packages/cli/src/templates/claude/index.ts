@@ -25,7 +25,7 @@ function readTemplate(relativePath: string): string {
 
 function listFiles(dir: string): string[] {
   try {
-    return readdirSync(join(__dirname, dir));
+    return readdirSync(join(__dirname, dir)).sort();
   } catch {
     return [];
   }
@@ -61,7 +61,7 @@ export interface HookTemplate {
 /**
  * Get all command templates
  * Commands are stored in commands/trellis/ subdirectory
- * This creates commands like /trellis:start, /trellis:finish-work, etc.
+ * This creates commands like /trellis:init, /trellis:task-start, etc.
  */
 export function getAllCommands(): CommandTemplate[] {
   const commands: CommandTemplate[] = [];

@@ -154,7 +154,7 @@ The following slash commands are for users (not AI):
 | Command | Description |
 |---------|-------------|
 | `/trellis:parallel` | Start Multi-Agent Pipeline (this command) |
-| `/trellis:start` | Start normal development mode (single process) |
+| `/trellis:init` | Initialize the main session |
 | `/trellis:record-session` | Record session progress |
 | `/trellis:finish-work` | Pre-completion checklist |
 
