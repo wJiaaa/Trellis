@@ -2,20 +2,20 @@
   "id": "00-bootstrap-guidelines",
   "name": "Bootstrap Guidelines",
   "description": "Fill in project development guidelines for AI agents",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": "docs",
   "priority": "P1",
   "createdAt": "2026-04-14",
-  "completedAt": null,
+  "completedAt": "2026-04-14",
   "commit": null,
   "subtasks": [
     {
       "name": "Fill guidelines for @mindfoldhq/trellis",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "name": "Add code examples",
-      "status": "pending"
+      "status": "completed"
     }
   ],
   "children": [],
