@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   getAllAgents,
-  getAllCodexSkills,
   getAllSkills,
   getConfigTemplate,
 } from "../../src/templates/codex/index.js";
@@ -69,21 +68,6 @@ describe("codex getAllAgents", () => {
       expect(agent.content).toContain("name = ");
       expect(agent.content).toContain("description = ");
       expect(agent.content).toContain("developer_instructions = ");
-    }
-  });
-});
-
-describe("codex getAllCodexSkills (platform-specific)", () => {
-  it("returns codex-specific skills", () => {
-    const skills = getAllCodexSkills();
-    const names = skills.map((skill) => skill.name);
-    expect(names).toEqual(["parallel"]);
-  });
-
-  it("codex-specific skills contain --platform codex", () => {
-    const skills = getAllCodexSkills();
-    for (const skill of skills) {
-      expect(skill.content).toContain("--platform codex");
     }
   });
 });

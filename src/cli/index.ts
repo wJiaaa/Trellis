@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import { init } from "../commands/init.js";
+import { update } from "../commands/update.js";
 import { VERSION, PACKAGE_NAME } from "../constants/version.js";
 
 // Re-export for backwards compatibility (consumers should prefer constants/version.js)
@@ -17,10 +18,7 @@ program
 
 program
   .command("init")
-  .description("Initialize trellis in the current project")
-  .option("--claude", "Include Claude Code commands")
-  .option("--opencode", "Include OpenCode commands")
-  .option("--codex", "Include Codex skills")
+  .description("Initialize trellis in a new project")
   .option("-y, --yes", "Skip prompts and use defaults")
   .option("-f, --force", "Overwrite existing files without asking")
   .option("-s, --skip-existing", "Skip existing files without asking")
@@ -29,6 +27,22 @@ program
   .action(async (options: Record<string, unknown>) => {
     try {
       await init(options);
+    } catch (error) {
+      console.error(
+        chalk.red("Error:"),
+        error instanceof Error ? error.message : error,
+      );
+      process.exit(1);
+    }
+  });
+
+program
+  .command("update")
+  .description("Refresh workflow templates and platform integration")
+  .option("-y, --yes", "Skip prompts and use defaults")
+  .action(async (options: Record<string, unknown>) => {
+    try {
+      await update(options);
     } catch (error) {
       console.error(
         chalk.red("Error:"),

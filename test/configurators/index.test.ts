@@ -39,14 +39,16 @@ describe("platform registry", () => {
 describe("managed path helpers", () => {
   it("matches supported platform paths", () => {
     expect(isManagedPath(".claude/commands/trellis/init.md")).toBe(true);
-    expect(isManagedPath(".opencode/plugins/session-start.js")).toBe(true);
-    expect(isManagedPath(".codex/hooks/session-start.py")).toBe(true);
+    expect(isManagedPath(".opencode/plugins/inject-subagent-context.js")).toBe(
+      true,
+    );
+    expect(isManagedPath(".codex/hooks.json")).toBe(true);
     expect(isManagedPath(".agents/skills/init/SKILL.md")).toBe(true);
   });
 
   it("matches supported platform paths with Windows separators", () => {
     expect(isManagedPath(".claude\\commands\\trellis\\init.md")).toBe(true);
-    expect(isManagedPath(".codex\\hooks\\session-start.py")).toBe(true);
+    expect(isManagedPath(".codex\\hooks.json")).toBe(true);
     expect(isManagedPath(".agents\\skills\\init\\SKILL.md")).toBe(true);
   });
 
@@ -88,7 +90,7 @@ describe("flag and choice helpers", () => {
   });
 
   it("reports only supported python-hook platforms", () => {
-    expect(getPlatformsWithPythonHooks()).toEqual(["claude-code", "codex"]);
+    expect(getPlatformsWithPythonHooks()).toEqual(["claude-code"]);
   });
 });
 
@@ -114,5 +116,6 @@ describe("template collection", () => {
     expect(keys).toContain(".codex/hooks.json");
     expect(keys.some((key) => key.startsWith(".codex/"))).toBe(true);
     expect(keys.some((key) => key.startsWith(".agents/skills/"))).toBe(true);
+    expect(keys.some((key) => key.startsWith(".codex/skills/"))).toBe(false);
   });
 });

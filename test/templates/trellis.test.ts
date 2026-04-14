@@ -11,18 +11,11 @@ import {
   commonPhase,
   commonRegistry,
   commonCliAdapter,
-  multiAgentInit,
-  multiAgentStart,
-  multiAgentCleanup,
-  multiAgentStatus,
-  multiAgentCreatePr,
-  multiAgentPlan,
   taskScript,
   getContextScript,
   addSessionScript,
   createBootstrapScript,
   workflowMdTemplate,
-  worktreeYamlTemplate,
   gitignoreTemplate,
   getAllScripts,
 } from "../../src/templates/trellis/index.js";
@@ -44,18 +37,11 @@ describe("trellis template constants", () => {
     commonPhase,
     commonRegistry,
     commonCliAdapter,
-    multiAgentInit,
-    multiAgentStart,
-    multiAgentCleanup,
-    multiAgentStatus,
-    multiAgentCreatePr,
-    multiAgentPlan,
     taskScript,
     getContextScript,
     addSessionScript,
     createBootstrapScript,
     workflowMdTemplate,
-    worktreeYamlTemplate,
     gitignoreTemplate,
   };
 
@@ -114,7 +100,7 @@ describe("getAllScripts", () => {
     expect(scripts.has("common/paths.py")).toBe(true);
     expect(scripts.has("common/developer.py")).toBe(true);
     expect(scripts.has("task.py")).toBe(true);
-    expect(scripts.has("multi_agent/start.py")).toBe(true);
+    expect(scripts.has("multi_agent/start.py")).toBe(false);
   });
 
   it("has at least one entry", () => {

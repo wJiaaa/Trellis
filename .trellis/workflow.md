@@ -311,7 +311,7 @@ python3 ./.trellis/scripts/task.py list            # List active tasks
 python3 ./.trellis/scripts/task.py list-archive    # List archived tasks
 ```
 
-**Current task mechanism**: `task.py start <name>` writes the selected task path to `.trellis/.current-task`. The SessionStart hook reads this file to inject `## CURRENT TASK` into every new session's context, so the AI immediately knows what you're working on without being told. Run `task.py finish` when you're done — subsequent sessions will show `(none)` until you start another task.
+**Current task mechanism**: `task.py start <name>` writes the selected task path to `.trellis/.current-task`. Run your session init command at the start of each task/session to load that context explicitly. Run `task.py finish` when you're done — subsequent sessions will show `(none)` until you start another task.
 
 ---
 

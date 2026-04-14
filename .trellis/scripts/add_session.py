@@ -451,8 +451,11 @@ def main() -> int:
     parser.add_argument("--content-file", help="Path to file with detailed content")
     parser.add_argument("--package", help="Package name tag (e.g., cli)")
     parser.add_argument("--branch", help="Branch name (auto-detected if omitted)")
-    parser.add_argument("--no-commit", action="store_true",
-                        help="Skip auto-commit of workspace changes")
+    parser.add_argument(
+        "--commit-workspace",
+        action="store_true",
+        help="Auto-commit .trellis/workspace and .trellis/tasks after recording",
+    )
     parser.add_argument("--stdin", action="store_true",
                         help="Read extra content from stdin (explicit opt-in)")
 
@@ -501,7 +504,7 @@ def main() -> int:
 
     return add_session(
         args.title, args.commit, args.summary, extra_content,
-        auto_commit=not args.no_commit,
+        auto_commit=args.commit_workspace,
         package=package,
         branch=branch,
     )

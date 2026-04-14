@@ -9,11 +9,9 @@
  *   ├── scripts/
  *   │   ├── __init__.py
  *   │   ├── common/           # Shared utilities (Python)
- *   │   ├── multi_agent/      # Multi-agent pipeline scripts (Python)
  *   │   └── *.py              # Main scripts (Python)
  *   ├── workflow.md           # Workflow guide
  *   ├── config.yaml            # Trellis configuration
- *   ├── worktree.yaml         # Worktree configuration
  *   └── gitignore.txt         # .gitignore content
  */
 
@@ -57,22 +55,6 @@ export const commonPackagesContext = readTemplate(
   "scripts/common/packages_context.py",
 );
 
-// Python scripts - multi_agent
-export const multiAgentInit = readTemplate("scripts/multi_agent/__init__.py");
-export const multiAgentStart = readTemplate("scripts/multi_agent/start.py");
-export const multiAgentCleanup = readTemplate("scripts/multi_agent/cleanup.py");
-export const multiAgentStatus = readTemplate("scripts/multi_agent/status.py");
-export const multiAgentCreatePr = readTemplate(
-  "scripts/multi_agent/create_pr.py",
-);
-export const multiAgentPlan = readTemplate("scripts/multi_agent/plan.py");
-export const multiAgentStatusDisplay = readTemplate(
-  "scripts/multi_agent/status_display.py",
-);
-export const multiAgentStatusMonitor = readTemplate(
-  "scripts/multi_agent/status_monitor.py",
-);
-
 // Python scripts - main
 export const taskScript = readTemplate("scripts/task.py");
 export const getContextScript = readTemplate("scripts/get_context.py");
@@ -84,7 +66,6 @@ export const createBootstrapScript = readTemplate(
 // Configuration files
 export const workflowMdTemplate = readTemplate("workflow.md");
 export const configYamlTemplate = readTemplate("config.yaml");
-export const worktreeYamlTemplate = readTemplate("worktree.yaml");
 export const gitignoreTemplate = readTemplate("gitignore.txt");
 
 /**
@@ -117,16 +98,6 @@ export function getAllScripts(): Map<string, string> {
   scripts.set("common/task_store.py", commonTaskStore);
   scripts.set("common/session_context.py", commonSessionContext);
   scripts.set("common/packages_context.py", commonPackagesContext);
-
-  // Multi-agent
-  scripts.set("multi_agent/__init__.py", multiAgentInit);
-  scripts.set("multi_agent/start.py", multiAgentStart);
-  scripts.set("multi_agent/cleanup.py", multiAgentCleanup);
-  scripts.set("multi_agent/status.py", multiAgentStatus);
-  scripts.set("multi_agent/create_pr.py", multiAgentCreatePr);
-  scripts.set("multi_agent/plan.py", multiAgentPlan);
-  scripts.set("multi_agent/status_display.py", multiAgentStatusDisplay);
-  scripts.set("multi_agent/status_monitor.py", multiAgentStatusMonitor);
 
   // Main
   scripts.set("task.py", taskScript);

@@ -1,0 +1,68 @@
+# Script Conventions
+
+> Standards for workflow scripts in the `.trellis/scripts/` directory.
+
+---
+
+## Overview
+
+Trellis workflow scripts are written in Python so they can run consistently across different developer environments. These scripts should stay small, predictable, and easy to read.
+
+---
+
+## Directory Structure
+
+```
+.trellis/scripts/
+├── __init__.py          # Package marker
+├── common/              # Shared helpers for multiple scripts
+├── hooks/               # Optional project-specific hook scripts
+├── task.py              # Task management entrypoint
+├── get_context.py       # Session context entrypoint
+├── add_session.py       # Session recording entrypoint
+└── create_bootstrap.py  # Bootstrap task generation
+```
+
+---
+
+## Entry Script Rules
+
+- Add a module docstring with the command purpose and basic usage.
+- Use `argparse` for CLI parsing instead of ad-hoc `sys.argv` handling.
+- Prefer `main() -> int` plus `sys.exit(main())` for deterministic exits.
+- Keep top-level side effects minimal so scripts remain import-safe.
+
+---
+
+## Shared Module Rules
+
+- Put reusable helpers in `common/` instead of duplicating logic across entry scripts.
+- Keep path logic in one place and reuse helpers rather than rebuilding directory strings inline.
+- Avoid importing entry scripts from other entry scripts. Shared code belongs in `common/`.
+
+---
+
+## I/O Rules
+
+- Use `pathlib.Path` for filesystem paths.
+- Read and write files with explicit UTF-8 encoding.
+- Prefer small wrapper helpers for repeated JSON or text file operations.
+- Print actionable error messages and exit non-zero on failure.
+
+---
+
+## Cross-Platform Rules
+
+- Document execution as `python3 ./.trellis/scripts/<name>.py`.
+- Avoid shell-specific utilities when Python standard library code is enough.
+- Be explicit about encoding when reading subprocess output or redirected input.
+
+---
+
+## Checklist
+
+- [ ] Shared logic lives in `common/`
+- [ ] Paths use `pathlib.Path`
+- [ ] File I/O uses explicit UTF-8 encoding
+- [ ] CLI behavior returns clear exit codes
+- [ ] Usage examples show `python3`

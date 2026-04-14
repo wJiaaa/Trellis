@@ -5,14 +5,13 @@ import figlet from "figlet";
 import inquirer from "inquirer";
 import { createWorkflowStructure } from "../configurators/workflow.js";
 import {
-  ALL_MANAGED_DIRS,
   getInitToolChoices,
   resolveCliFlag,
   configurePlatform,
   getConfiguredPlatforms,
   getPlatformsWithPythonHooks,
 } from "../configurators/index.js";
-import { AI_TOOLS, type CliFlag } from "../types/ai-tools.js";
+import { AI_TOOLS } from "../types/ai-tools.js";
 import { DIR_NAMES, FILE_NAMES, PATHS } from "../constants/paths.js";
 import { agentsMdContent } from "../templates/markdown/index.js";
 import {
@@ -302,145 +301,12 @@ function createBootstrapTask(
   }
 }
 
-/**
- * Handle re-init when .trellis/ already exists.
- * Returns true if handled (caller should return), false if user chose full re-init.
- */
-async function handleReinit(
-  cwd: string,
-  options: InitOptions,
-): Promise<boolean> {
-  const TOOLS = getInitToolChoices();
-  const configuredPlatforms = getConfiguredPlatforms(cwd);
-  const configuredNames = [...configuredPlatforms]
-    .map((id) => AI_TOOLS[id].name)
-    .join(", ");
-
-  // Determine explicit platform flags
-  const explicitTools = TOOLS.filter(
-    (t) => options[t.key as keyof InitOptions],
-  ).map((t) => t.key);
-
-  let doAddPlatforms = explicitTools.length > 0;
-  let platformsToAdd: string[] = explicitTools;
-
-  // No explicit flags → show menu
-  if (!doAddPlatforms) {
-    if (options.yes) {
-      console.log(chalk.gray(`Already initialized with: ${configuredNames}`));
-      console.log(
-        chalk.gray("Use platform flags (e.g., --codex) to add platforms."),
-      );
-      return true;
-    }
-
-    console.log(
-      chalk.gray(`\n   Already initialized with: ${configuredNames}\n`),
-    );
-
-    const { action } = await inquirer.prompt<{ action: string }>([
-      {
-        type: "list",
-        name: "action",
-        message: "Trellis is already initialized. What would you like to do?",
-        choices: [
-          { name: "Add AI platform(s)", value: "add-platform" },
-          { name: "Full re-initialize", value: "full" },
-        ],
-      },
-    ]);
-
-    if (action === "full") {
-      return false; // Fall through to full init
-    }
-    if (action === "add-platform") doAddPlatforms = true;
-  }
-
-  // --- Add platforms ---
-  if (doAddPlatforms) {
-    if (platformsToAdd.length === 0) {
-      // Interactive: show only unconfigured platforms
-      const unconfigured = TOOLS.filter((t) => {
-        const pid = resolveCliFlag(t.key);
-        return pid && !configuredPlatforms.has(pid);
-      });
-
-      if (unconfigured.length === 0) {
-        console.log(
-          chalk.green("✓ All available platforms are already configured."),
-        );
-      } else {
-        const answers = await inquirer.prompt<{ tools: string[] }>([
-          {
-            type: "checkbox",
-            name: "tools",
-            message: "Select platforms to add:",
-            choices: unconfigured.map((t) => ({
-              name: t.name,
-              value: t.key,
-            })),
-          },
-        ]);
-        platformsToAdd = answers.tools;
-      }
-    }
-
-    for (const tool of platformsToAdd) {
-      const platformId = resolveCliFlag(tool as CliFlag);
-      if (platformId) {
-        if (configuredPlatforms.has(platformId)) {
-          console.log(
-            chalk.gray(
-              `  ○ ${AI_TOOLS[platformId].name} already configured, skipping`,
-            ),
-          );
-        } else {
-          console.log(
-            chalk.blue(`📝 Configuring ${AI_TOOLS[platformId].name}...`),
-          );
-          await configurePlatform(platformId, cwd);
-        }
-      }
-    }
-  }
-
-  return true;
-}
-
 interface InitOptions {
-  claude?: boolean;
-  opencode?: boolean;
-  codex?: boolean;
   yes?: boolean;
   force?: boolean;
   skipExisting?: boolean;
   monorepo?: boolean;
 }
-
-const ROOT_MANAGED_FILES = ["AGENTS.md"];
-
-function resetManagedState(cwd: string): void {
-  const managedPaths = [...ALL_MANAGED_DIRS, ...ROOT_MANAGED_FILES]
-    .map((relativePath) => path.join(cwd, relativePath))
-    .sort((left, right) => right.length - left.length);
-
-  for (const managedPath of managedPaths) {
-    fs.rmSync(managedPath, { recursive: true, force: true });
-  }
-
-  const agentsRoot = path.join(cwd, ".agents");
-  if (fs.existsSync(agentsRoot) && fs.readdirSync(agentsRoot).length === 0) {
-    fs.rmSync(agentsRoot, { recursive: true, force: true });
-  }
-}
-
-// Compile-time check: every CliFlag must be a key of InitOptions.
-// If a new platform is added to CliFlag but not to InitOptions, this line errors.
-// Uses [X] extends [Y] to prevent distributive conditional behavior.
-type _AssertCliFlagsInOptions = [CliFlag] extends [keyof InitOptions]
-  ? true
-  : "ERROR: CliFlag has values not present in InitOptions";
-const _cliFlagCheck: _AssertCliFlagsInOptions = true;
 
 /**
  * Write monorepo package configuration to config.yaml (non-destructive patch).
@@ -492,7 +358,6 @@ interface InitAnswers {
 export async function init(options: InitOptions): Promise<void> {
   const cwd = process.cwd();
   const isFirstInit = !fs.existsSync(path.join(cwd, DIR_NAMES.WORKFLOW));
-  let shouldResetManagedState = false;
 
   // Generate ASCII art banner dynamically using FIGlet "Rebel" font
   const banner = figlet.textSync("Trellis", { font: "Rebel" });
@@ -514,15 +379,15 @@ export async function init(options: InitOptions): Promise<void> {
   }
   setWriteMode(writeMode);
 
-  // ==========================================================================
-  // Re-init fast path: skip full flow when .trellis/ already exists
-  // ==========================================================================
+  if (!isFirstInit) {
+    const configuredPlatforms = getConfiguredPlatforms(cwd);
+    const configuredNames = [...configuredPlatforms]
+      .map((id) => AI_TOOLS[id].name)
+      .join(", ");
 
-  if (!isFirstInit && !options.force && !options.skipExisting) {
-    const reinitDone = await handleReinit(cwd, options);
-    if (reinitDone) return;
-    // reinitDone === false means user chose "full re-initialize" → fall through
-    shouldResetManagedState = true;
+    console.log(chalk.gray(`Already initialized with: ${configuredNames || "(none)"}`));
+    console.log(chalk.gray("Use `trellis update` to refresh templates or platform integration."));
+    return;
   }
 
   // Detect project type (silent - no output)
@@ -588,18 +453,10 @@ export async function init(options: InitOptions): Promise<void> {
   // Tool definitions derived from platform registry
   const TOOLS = getInitToolChoices();
 
-  // Build tools from explicit flags
-  const explicitTools = TOOLS.filter(
-    (t) => options[t.key as keyof InitOptions],
-  ).map((t) => t.key);
-
   let tools: string[];
 
-  if (explicitTools.length > 0) {
-    // Explicit flags take precedence (works with or without -y)
-    tools = explicitTools;
-  } else if (options.yes) {
-    // No explicit tools + -y: default to Claude only
+  if (options.yes) {
+    // Default non-interactive selection: Claude only
     tools = TOOLS.filter((t) => t.defaultChecked).map((t) => t.key);
   } else {
     // Interactive mode
@@ -629,10 +486,6 @@ export async function init(options: InitOptions): Promise<void> {
     return;
   }
 
-  if (shouldResetManagedState) {
-    resetManagedState(cwd);
-  }
-
   // ==========================================================================
   // Create Workflow Structure
   // ==========================================================================
@@ -642,7 +495,6 @@ export async function init(options: InitOptions): Promise<void> {
   console.log(chalk.blue("📁 Creating workflow structure..."));
   await createWorkflowStructure(cwd, {
     projectType,
-    multiAgent: true,
     packages: monorepoPackages,
   });
 

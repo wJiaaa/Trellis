@@ -15,6 +15,7 @@ This directory contains guidelines for backend/CLI development in the Trellis pr
 | Guide | Description | Status |
 |-------|-------------|--------|
 | [Directory Structure](./directory-structure.md) | Module organization and file layout | Filled |
+| [Script Conventions](./script-conventions.md) | Python standards for `.trellis/scripts/` and hooks | Filled |
 | [Database Guidelines](./database-guidelines.md) | N/A - No database in CLI | N/A |
 | [Error Handling](./error-handling.md) | Try/catch with chalk.red, process.exit(1) | Filled |
 | [Quality Guidelines](./quality-guidelines.md) | ESLint, TypeScript strict, Vitest | Filled |

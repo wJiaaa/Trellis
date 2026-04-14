@@ -23,6 +23,7 @@ These guides help you **ask the right questions before coding**.
 |-------|---------|-------------|
 | [Code Reuse Thinking Guide](./code-reuse-thinking-guide.md) | Identify patterns and reduce duplication | When you notice repeated patterns |
 | [Cross-Layer Thinking Guide](./cross-layer-thinking-guide.md) | Think through data flow across layers | Features spanning multiple layers |
+| [Cross-Platform Thinking Guide](./cross-platform-thinking-guide.md) | Catch OS, shell, and encoding assumptions early | CLI tools, scripts, and automation |
 
 ---
 
@@ -36,6 +37,15 @@ These guides help you **ask the right questions before coding**.
 - [ ] You're not sure where to put some logic
 
 → Read [Cross-Layer Thinking Guide](./cross-layer-thinking-guide.md)
+
+### When to Think About Cross-Platform Issues
+
+- [ ] You changed shell commands, subprocess calls, or hook scripts
+- [ ] You changed path handling, permissions, or line endings
+- [ ] You read or write terminal output, pipes, or non-ASCII text
+- [ ] You rely on commands that differ between macOS/Linux and Windows
+
+→ Read [Cross-Platform Thinking Guide](./cross-platform-thinking-guide.md)
 
 ### When to Think About Code Reuse
 

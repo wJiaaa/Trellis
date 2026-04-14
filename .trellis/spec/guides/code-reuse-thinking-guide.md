@@ -103,3 +103,14 @@ When you've made similar changes to multiple files:
 - [ ] No copy-pasted logic that should be shared
 - [ ] Constants defined in one place
 - [ ] Similar patterns follow same structure
+
+---
+
+## Trellis Template Registration
+
+When adding new files to `src/templates/trellis/scripts/`:
+
+1. `src/templates/trellis/index.ts` must expose the file so tests and template helpers see it.
+2. `src/configurators/workflow.ts` must still copy the containing directory into initialized projects.
+
+If one path is derived automatically and another is maintained manually, add a regression test that compares the generated output.

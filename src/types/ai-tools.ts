@@ -38,7 +38,7 @@ export interface AIToolConfig {
   supportsAgentSkills?: boolean;
   /** Additional managed paths beyond configDir (e.g., .github/hooks for Copilot) */
   extraManagedPaths?: string[];
-  /** CLI flag name for --flag options (e.g., "claude" for --claude) */
+  /** Stable tool key used by interactive init/update selection */
   cliFlag: CliFlag;
   /** Whether this tool is checked by default in interactive init prompt */
   defaultChecked: boolean;
@@ -81,16 +81,9 @@ export const AI_TOOLS: Record<AITool, AIToolConfig> = {
     supportsAgentSkills: true,
     cliFlag: "codex",
     defaultChecked: false,
-    hasPythonHooks: true,
+    hasPythonHooks: false,
   },
 };
-
-/**
- * Get the configuration for a specific AI tool
- */
-export function getToolConfig(tool: AITool): AIToolConfig {
-  return AI_TOOLS[tool];
-}
 
 /**
  * Get all managed paths for a specific tool.
@@ -105,11 +98,4 @@ export function getManagedPaths(tool: AITool): string[] {
     paths.push(...config.extraManagedPaths);
   }
   return paths;
-}
-
-/**
- * Get template directories for a specific tool
- */
-export function getTemplateDirs(tool: AITool): TemplateDir[] {
-  return AI_TOOLS[tool].templateDirs;
 }

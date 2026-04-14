@@ -27,15 +27,10 @@ function readLocalTemplate(filename: string): string {
 export const agentsMdContent: string = readLocalTemplate("agents.md");
 
 // Workspace index template (developer work records)
-export const workspaceIndexContent: string =
-  readLocalTemplate("workspace-index.md");
+const workspaceIndexContent: string = readLocalTemplate("workspace-index.md");
 
 // Backwards compatibility alias
 export const agentProgressIndexContent = workspaceIndexContent;
-
-// Gitignore (template file - .gitignore is ignored by npm)
-export const workflowGitignoreContent: string =
-  readLocalTemplate("gitignore.txt");
 
 // =============================================================================
 // Structure templates (generic templates from .txt files)
@@ -51,6 +46,9 @@ export const backendDirectoryStructureContent: string = readLocalTemplate(
 );
 export const backendDatabaseGuidelinesContent: string = readLocalTemplate(
   "spec/backend/database-guidelines.md.txt",
+);
+export const backendScriptConventionsContent: string = readLocalTemplate(
+  "spec/backend/script-conventions.md.txt",
 );
 export const backendLoggingGuidelinesContent: string = readLocalTemplate(
   "spec/backend/logging-guidelines.md.txt",
@@ -91,6 +89,9 @@ export const guidesIndexContent: string = readLocalTemplate(
 );
 export const guidesCrossLayerThinkingGuideContent: string = readLocalTemplate(
   "spec/guides/cross-layer-thinking-guide.md.txt",
+);
+export const guidesCrossPlatformThinkingGuideContent: string = readLocalTemplate(
+  "spec/guides/cross-platform-thinking-guide.md.txt",
 );
 export const guidesCodeReuseThinkingGuideContent: string = readLocalTemplate(
   "spec/guides/code-reuse-thinking-guide.md.txt",

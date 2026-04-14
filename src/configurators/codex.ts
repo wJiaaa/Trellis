@@ -1,7 +1,6 @@
 import path from "node:path";
 import {
   getAllAgents,
-  getAllCodexSkills,
   getAllHooks,
   getAllSkills,
   getConfigTemplate,
@@ -13,9 +12,7 @@ import { resolvePlaceholders } from "./shared.js";
 /**
  * Configure Codex by writing:
  * - .agents/skills/<skill-name>/SKILL.md   (shared, cross-platform)
- * - .codex/skills/<skill-name>/SKILL.md    (Codex-specific)
  * - .codex/agents/<agent-name>.toml
- * - .codex/hooks/session-start.py
  * - .codex/hooks.json
  * - .codex/config.toml
  */
@@ -32,16 +29,6 @@ export async function configureCodex(cwd: string): Promise<void> {
 
   const codexRoot = path.join(cwd, ".codex");
 
-  // Codex-specific skills → .codex/skills/
-  const codexSkillsRoot = path.join(codexRoot, "skills");
-  ensureDir(codexSkillsRoot);
-
-  for (const skill of getAllCodexSkills()) {
-    const skillDir = path.join(codexSkillsRoot, skill.name);
-    ensureDir(skillDir);
-    await writeFile(path.join(skillDir, "SKILL.md"), skill.content);
-  }
-
   // Custom agents → .codex/agents/
   const codexAgentsRoot = path.join(codexRoot, "agents");
   ensureDir(codexAgentsRoot);
@@ -53,12 +40,15 @@ export async function configureCodex(cwd: string): Promise<void> {
     );
   }
 
-  // Hooks → .codex/hooks/
-  const hooksDir = path.join(codexRoot, "hooks");
-  ensureDir(hooksDir);
+  // Hooks → .codex/hooks/ (only if present)
+  const hooks = getAllHooks();
+  if (hooks.length > 0) {
+    const hooksDir = path.join(codexRoot, "hooks");
+    ensureDir(hooksDir);
 
-  for (const hook of getAllHooks()) {
-    await writeFile(path.join(hooksDir, hook.name), hook.content);
+    for (const hook of hooks) {
+      await writeFile(path.join(hooksDir, hook.name), hook.content);
+    }
   }
 
   // Hooks config → .codex/hooks.json

@@ -31,7 +31,6 @@ import {
 } from "../templates/claude/index.js";
 import {
   getAllAgents as getCodexAgents,
-  getAllCodexSkills as getCodexPlatformSkills,
   getAllHooks as getCodexHooks,
   getAllSkills as getCodexSkills,
   getConfigTemplate as getCodexConfigTemplate,
@@ -89,9 +88,6 @@ const PLATFORM_FUNCTIONS: Record<AITool, PlatformFunctions> = {
       const files = new Map<string, string>();
       for (const skill of getCodexSkills()) {
         files.set(`.agents/skills/${skill.name}/SKILL.md`, skill.content);
-      }
-      for (const skill of getCodexPlatformSkills()) {
-        files.set(`.codex/skills/${skill.name}/SKILL.md`, skill.content);
       }
       for (const agent of getCodexAgents()) {
         files.set(`.codex/agents/${agent.name}.toml`, agent.content);
@@ -168,13 +164,6 @@ export function isManagedPath(dirPath: string): boolean {
  */
 export function isManagedRootDir(dirName: string): boolean {
   return ALL_MANAGED_DIRS.includes(dirName);
-}
-
-/**
- * Get all managed paths for a platform.
- */
-export function getPlatformManagedPaths(platformId: AITool): string[] {
-  return getManagedPaths(platformId);
 }
 
 /**

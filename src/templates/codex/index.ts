@@ -8,7 +8,6 @@
  * Directory structure:
  *   codex/
  *   ├── agents/         # Project-scoped Codex custom agents (.toml)
- *   ├── codex-skills/   # Codex-specific skills → .codex/skills/
  *   ├── skills/         # Shared skills → .agents/skills/
  *   └── config.toml     # Project-scoped Codex config
  */
@@ -83,20 +82,6 @@ export function getAllAgents(): AgentTemplate[] {
   }
 
   return agents;
-}
-
-/**
- * Get Codex-specific skills (installed to .codex/skills/, not shared .agents/skills/).
- */
-export function getAllCodexSkills(): SkillTemplate[] {
-  const skills: SkillTemplate[] = [];
-
-  for (const name of listDirectories("codex-skills")) {
-    const content = readTemplate(`codex-skills/${name}/SKILL.md`);
-    skills.push({ name, content });
-  }
-
-  return skills;
 }
 
 export interface HookTemplate {

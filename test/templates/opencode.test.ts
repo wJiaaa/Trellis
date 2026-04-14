@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { contextCollector } from "../../src/templates/opencode/lib/trellis-context.js";
-import { hasInjectedTrellisContext } from "../../src/templates/opencode/plugins/session-start.js";
 
 interface TestContextCollector {
   processed: Set<string>;
@@ -37,44 +36,5 @@ describe("opencode session context dedupe", () => {
     collector.markProcessed("session-a");
 
     expect(collector.isProcessed("session-b")).toBe(false);
-  });
-});
-
-describe("opencode session-start history detection", () => {
-  it("detects persisted Trellis context from metadata", () => {
-    const messages = [
-      {
-        info: { role: "user" },
-        parts: [
-          {
-            type: "text",
-            text: "hello",
-            metadata: {
-              trellis: {
-                sessionStart: true,
-              },
-            },
-          },
-        ],
-      },
-    ];
-
-    expect(hasInjectedTrellisContext(messages)).toBe(true);
-  });
-
-  it("ignores unrelated user messages", () => {
-    const messages = [
-      {
-        info: { role: "user" },
-        parts: [
-          {
-            type: "text",
-            text: "normal prompt",
-          },
-        ],
-      },
-    ];
-
-    expect(hasInjectedTrellisContext(messages)).toBe(false);
   });
 });

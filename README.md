@@ -22,17 +22,17 @@
   - `AGENTS.md`
 - 维护模板到 `dist/templates/` 的构建产物
 
-当前 CLI 入口只有一个命令：
+当前支持两个命令：
 
 ```bash
 trellis init
+trellis update
 ```
+
+默认直接执行 `trellis init` 即可，CLI 会交互式让你选择要安装的平台。
 
 可用参数：
 
-- `--claude`
-- `--opencode`
-- `--codex`
 - `-y, --yes`
 - `-f, --force`
 - `-s, --skip-existing`
@@ -59,11 +59,7 @@ pnpm build
 node ./bin/trellis.js init
 ```
 
-如果要生成特定平台配置：
-
-```bash
-node ./bin/trellis.js init --claude --codex
-```
+如果你想跳过交互，`-y` 会使用默认选择。
 
 ## 校验命令
 
@@ -100,6 +96,48 @@ pnpm lint
 pnpm typecheck
 pnpm lint:py
 ```
+
+## 当前推荐工作流
+
+当前仓库已经去掉了：
+
+- 会话启动自动注入 hooks
+- `parallel` / worktree 并行流水线
+
+所以推荐流程是显式执行：
+
+1. 在目标项目里初始化一次：
+   ```bash
+   node /Users/weijia/Documents/Trellis/bin/trellis.js init
+   ```
+   然后在交互里选择要安装的平台。
+2. 以后要刷新脚本模板和平台接入层时：
+   ```bash
+   node /Users/weijia/Documents/Trellis/bin/trellis.js update
+   ```
+   `update` 会保留 `.trellis/spec`、`.trellis/tasks`、`.trellis/workspace`
+   和现有 `config.yaml`，只重置脚本模板与平台接入层。
+3. 每次新会话开始，手动执行平台对应的 `init`
+4. 需求明确：
+   - `task-create`
+   - `task-start`
+5. 需求不明确：
+   - `brainstorm`
+   - 然后 `task-create`
+   - 再 `task-start`
+6. 实现完成后：
+   - `check`
+   - 或 `check-cross-layer`
+7. 收尾：
+   - `finish-work`
+   - 手动 `git commit`
+   - 需要记录会话时再执行 `record-session`
+
+说明：
+
+- `task-start` 会显式调用实现子 agent
+- `check` / `check-cross-layer` 会显式调用检查子 agent
+- `record-session` 现在默认不会自动提交 `.trellis` 元数据
 
 ## 目录说明
 

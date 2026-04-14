@@ -76,7 +76,6 @@ const EXPECTED_COMMAND_NAMES = [
   "create-command",
   "finish-work",
   "init",
-  "parallel",
   "record-session",
   "task-create",
   "task-start",

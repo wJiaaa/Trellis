@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 
 import { DIR_NAMES, PATHS } from "../constants/paths.js";
@@ -7,7 +8,6 @@ import { copyTrellisDir } from "../templates/extract.js";
 import {
   workflowMdTemplate,
   configYamlTemplate,
-  worktreeYamlTemplate,
   gitignoreTemplate,
 } from "../templates/trellis/index.js";
 
@@ -18,6 +18,7 @@ import {
   backendIndexContent,
   backendDirectoryStructureContent,
   backendDatabaseGuidelinesContent,
+  backendScriptConventionsContent,
   backendLoggingGuidelinesContent,
   backendQualityGuidelinesContent,
   backendErrorHandlingContent,
@@ -32,6 +33,7 @@ import {
   // Guides structure
   guidesIndexContent,
   guidesCrossLayerThinkingGuideContent,
+  guidesCrossPlatformThinkingGuideContent,
   guidesCodeReuseThinkingGuideContent,
 } from "../templates/markdown/index.js";
 
@@ -60,8 +62,6 @@ const initialJournalContent = `# Journal (Part 1)
 export interface WorkflowOptions {
   /** Detected or specified project type */
   projectType: ProjectType;
-  /** Enable multi-agent pipeline with worktree support */
-  multiAgent?: boolean;
   /** Detected monorepo packages (enables monorepo spec creation) */
   packages?: DetectedPackage[];
 }
@@ -75,7 +75,7 @@ export interface WorkflowOptions {
  * 3. Creating workspace/ with index.md
  * 4. Creating tasks/ directory
  * 5. Creating spec/ with templates (not dogfooded - generic templates)
- * 6. Copying worktree.yaml if multi-agent is enabled
+ * 6. Creating spec templates
  *
  * @param cwd - Current working directory
  * @param options - Workflow options including project type
@@ -85,7 +85,6 @@ export async function createWorkflowStructure(
   options?: WorkflowOptions,
 ): Promise<void> {
   const projectType = options?.projectType ?? "fullstack";
-  const multiAgent = options?.multiAgent ?? false;
   const packages = options?.packages;
 
   // Create base .trellis directory
@@ -128,14 +127,6 @@ export async function createWorkflowStructure(
   // Create tasks/ directory
   ensureDir(path.join(cwd, PATHS.TASKS));
 
-  // Copy worktree.yaml if multi-agent enabled
-  if (multiAgent) {
-    await writeFile(
-      path.join(cwd, DIR_NAMES.WORKFLOW, "worktree.yaml"),
-      worktreeYamlTemplate,
-    );
-  }
-
   // Create spec templates based on project type
   // These are NOT dogfooded - they are generic templates for new projects
   if (packages && packages.length > 0) {
@@ -144,6 +135,40 @@ export async function createWorkflowStructure(
   } else {
     // Single-repo mode: create global spec
     await createSpecTemplates(cwd, projectType);
+  }
+}
+
+/**
+ * Refresh only the workflow template files that are safe to overwrite.
+ *
+ * This preserves user-authored spec/task/workspace content while updating:
+ * - .trellis/scripts/
+ * - .trellis/workflow.md
+ * - .trellis/.gitignore
+ * - .trellis/config.yaml (only if missing)
+ */
+export async function refreshWorkflowTemplates(cwd: string): Promise<void> {
+  ensureDir(path.join(cwd, DIR_NAMES.WORKFLOW));
+
+  fs.rmSync(path.join(cwd, PATHS.SCRIPTS), { recursive: true, force: true });
+
+  await copyTrellisDir("scripts", path.join(cwd, PATHS.SCRIPTS), {
+    executable: true,
+  });
+
+  await writeFile(
+    path.join(cwd, PATHS.WORKFLOW_GUIDE_FILE),
+    workflowMdTemplate,
+  );
+
+  await writeFile(
+    path.join(cwd, DIR_NAMES.WORKFLOW, ".gitignore"),
+    gitignoreTemplate,
+  );
+
+  const configPath = path.join(cwd, DIR_NAMES.WORKFLOW, "config.yaml");
+  if (!fs.existsSync(configPath)) {
+    await writeFile(configPath, configYamlTemplate);
   }
 }
 
@@ -162,6 +187,10 @@ async function writeBackendDocs(specBase: string): Promise<void> {
     {
       name: "database-guidelines.md",
       content: backendDatabaseGuidelinesContent,
+    },
+    {
+      name: "script-conventions.md",
+      content: backendScriptConventionsContent,
     },
     { name: "logging-guidelines.md", content: backendLoggingGuidelinesContent },
     { name: "quality-guidelines.md", content: backendQualityGuidelinesContent },
@@ -232,6 +261,10 @@ async function createSpecTemplates(
     {
       name: "cross-layer-thinking-guide.md",
       content: guidesCrossLayerThinkingGuideContent,
+    },
+    {
+      name: "cross-platform-thinking-guide.md",
+      content: guidesCrossPlatformThinkingGuideContent,
     },
     {
       name: "code-reuse-thinking-guide.md",

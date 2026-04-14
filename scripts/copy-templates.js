@@ -19,6 +19,15 @@
 import { cpSync, readdirSync, rmSync, statSync, mkdirSync } from "node:fs";
 import { join, extname } from "node:path";
 
+function isCompiledArtifact(filename) {
+  return (
+    filename.endsWith(".d.ts") ||
+    filename.endsWith(".d.ts.map") ||
+    filename.endsWith(".js") ||
+    filename.endsWith(".js.map")
+  );
+}
+
 /**
  * Recursively copy directory, excluding .ts files
  * @param {string} src - Source directory
@@ -40,9 +49,45 @@ function copyDir(src, dest) {
   }
 }
 
-// Remove stale files first so deleted templates do not linger in dist/.
-rmSync("dist/templates", { recursive: true, force: true });
+/**
+ * Remove stale non-compiled template assets while preserving tsc output.
+ * This keeps dist/templates/*.js available at runtime.
+ */
+function pruneStaleAssets(src, dest) {
+  mkdirSync(dest, { recursive: true });
 
-// Copy src/templates to dist/templates
+  const srcEntries = new Set(readdirSync(src));
+
+  for (const entry of readdirSync(dest)) {
+    const srcPath = join(src, entry);
+    const destPath = join(dest, entry);
+    const destStat = statSync(destPath);
+
+    if (isCompiledArtifact(entry)) {
+      continue;
+    }
+
+    if (!srcEntries.has(entry)) {
+      rmSync(destPath, { recursive: true, force: true });
+      continue;
+    }
+
+    const srcStat = statSync(srcPath);
+
+    if (srcStat.isDirectory() && destStat.isDirectory()) {
+      pruneStaleAssets(srcPath, destPath);
+      continue;
+    }
+
+    if (srcStat.isDirectory() !== destStat.isDirectory()) {
+      rmSync(destPath, { recursive: true, force: true });
+    }
+  }
+}
+
+// Remove stale template assets first, but keep compiled JS from tsc.
+pruneStaleAssets("src/templates", "dist/templates");
+
+// Copy src/templates assets to dist/templates
 copyDir("src/templates", "dist/templates");
 console.log("Copied src/templates/ to dist/templates");

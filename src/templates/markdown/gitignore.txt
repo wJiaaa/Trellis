@@ -1,9 +1,0 @@
-# Trellis workflow gitignore
-# Runtime files that should not be committed
-
-# Current task pointer (local state)
-.current-task
-
-# Agent runtime files (in worktree)
-.agent-log
-.session-id

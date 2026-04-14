@@ -5,7 +5,7 @@ description: "Records completed work progress to .trellis/workspace/ journal fil
 
 [!] **Prerequisite**: This skill should only be used AFTER `$finish-work` is complete and the human has tested and committed the code.
 
-**Do NOT run `git commit` directly** — the scripts below handle their own commits for `.trellis/` metadata. You only need to read git history (`git log`, `git status`, `git diff`) and run the Python scripts.
+This flow records workspace history and task metadata. It does **not** auto-commit unless you explicitly opt in when calling the script.
 
 ---
 
@@ -53,7 +53,7 @@ EOF
 - [OK] Auto-detects line count, creates new file if >2000 lines
 - [OK] Auto-detects Branch context (`--branch` override; otherwise Branch = task.json -> current git branch; missing values are omitted gracefully)
 - [OK] Updates index.md (Total Sessions +1, Last Active, line stats, history)
-- [OK] Auto-commits .trellis/workspace and .trellis/tasks changes
+- [OK] Leaves `.trellis/workspace` and `.trellis/tasks` modified in git for you to review
 
 ---
 
@@ -63,5 +63,5 @@ EOF
 |---------|---------|
 | `python3 ./.trellis/scripts/get_context.py --mode record` | Get context for record-session |
 | `python3 ./.trellis/scripts/add_session.py --title "..." --commit "..."` | **One-click add session (recommended, branch auto-complete)** |
-| `python3 ./.trellis/scripts/task.py archive <name>` | Archive completed task (auto-commits) |
+| `python3 ./.trellis/scripts/task.py archive <name>` | Archive completed task |
 | `python3 ./.trellis/scripts/task.py list` | List active tasks |

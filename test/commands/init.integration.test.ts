@@ -12,6 +12,7 @@ vi.mock("inquirer", () => ({
 }));
 import inquirer from "inquirer";
 import { init } from "../../src/commands/init.js";
+import { update } from "../../src/commands/update.js";
 import { DIR_NAMES, PATHS } from "../../src/constants/paths.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -68,8 +69,12 @@ describe("init() integration", () => {
     expect(bootstrapTask).not.toHaveProperty("assignee");
   });
 
-  it("configures all explicitly selected supported platforms", async () => {
-    await init({ yes: true, claude: true, opencode: true, codex: true });
+  it("configures all interactively selected supported platforms", async () => {
+    vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+      tools: ["claude", "opencode", "codex"],
+    });
+
+    await init({});
 
     expect(fs.existsSync(path.join(tmpDir, ".claude"))).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, ".opencode"))).toBe(true);
@@ -83,80 +88,153 @@ describe("init() integration", () => {
     ).toBe(true);
     expect(
       fs.existsSync(path.join(tmpDir, ".codex", "hooks", "session-start.py")),
-    ).toBe(true);
+    ).toBe(false);
+    expect(fs.existsSync(path.join(tmpDir, ".codex", "hooks.json"))).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(tmpDir, ".opencode", "commands", "trellis", "parallel.md"),
+      ),
+    ).toBe(false);
+    expect(
+      fs.existsSync(
+        path.join(
+          tmpDir,
+          ".opencode",
+          "commands",
+          "trellis",
+          "migrate-specs.md",
+        ),
+      ),
+    ).toBe(false);
 
   });
 
   it("does not generate onboarding artifacts for Codex skills", async () => {
-    await init({ yes: true, codex: true });
+    vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+      tools: ["codex"],
+    });
+
+    await init({});
 
     expect(
       fs.existsSync(path.join(tmpDir, ".agents", "skills", "onboard", "SKILL.md")),
     ).toBe(false);
     expect(
       fs.existsSync(path.join(tmpDir, ".codex", "skills", "parallel", "SKILL.md")),
-    ).toBe(true);
+    ).toBe(false);
   });
 
-  it("removes stale managed files during full re-initialize", async () => {
-    await init({ yes: true, claude: true, opencode: true, codex: true });
+  it("keeps existing initialization unchanged on repeated init", async () => {
+    await init({ yes: true });
+    await init({ yes: true });
 
-    fs.mkdirSync(path.join(tmpDir, ".claude", "commands", "trellis"), {
-      recursive: true,
-    });
-    fs.mkdirSync(path.join(tmpDir, ".opencode", "commands", "trellis"), {
-      recursive: true,
-    });
-    fs.mkdirSync(path.join(tmpDir, ".agents", "skills", "start"), {
-      recursive: true,
-    });
-    fs.writeFileSync(
-      path.join(tmpDir, ".claude", "commands", "trellis", "start.md"),
-      "legacy claude start",
-    );
-    fs.writeFileSync(
-      path.join(tmpDir, ".opencode", "commands", "trellis", "start.md"),
-      "legacy opencode start",
-    );
-    fs.writeFileSync(
-      path.join(tmpDir, ".agents", "skills", "start", "SKILL.md"),
-      "legacy codex start",
-    );
-
-    vi.mocked(inquirer.prompt)
-      .mockResolvedValueOnce({ action: "full" })
-      .mockResolvedValueOnce({ tools: ["claude", "opencode", "codex"] });
-
-    await init({});
-
-    expect(
-      fs.existsSync(path.join(tmpDir, ".claude", "commands", "trellis", "start.md")),
-    ).toBe(false);
-    expect(
-      fs.existsSync(path.join(tmpDir, ".opencode", "commands", "trellis", "start.md")),
-    ).toBe(false);
-    expect(
-      fs.existsSync(path.join(tmpDir, ".agents", "skills", "start", "SKILL.md")),
-    ).toBe(false);
-    expect(
-      fs.existsSync(path.join(tmpDir, ".claude", "commands", "trellis", "init.md")),
-    ).toBe(true);
-    expect(
-      fs.existsSync(path.join(tmpDir, ".agents", "skills", "init", "SKILL.md")),
-    ).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir, ".claude"))).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir, ".codex"))).toBe(false);
   });
 
   it("creates backend, frontend, and guides spec templates for unknown projects", async () => {
-    await init({ yes: true, claude: true });
+    await init({ yes: true });
 
     expect(
       fs.existsSync(path.join(tmpDir, ".trellis", "spec", "backend", "index.md")),
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(
+          tmpDir,
+          ".trellis",
+          "spec",
+          "backend",
+          "script-conventions.md",
+        ),
+      ),
     ).toBe(true);
     expect(
       fs.existsSync(path.join(tmpDir, ".trellis", "spec", "frontend", "index.md")),
     ).toBe(true);
     expect(
       fs.existsSync(path.join(tmpDir, ".trellis", "spec", "guides", "index.md")),
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(
+          tmpDir,
+          ".trellis",
+          "spec",
+          "guides",
+          "cross-platform-thinking-guide.md",
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("tells the user to use update when Trellis is already initialized", async () => {
+    await init({ yes: true });
+    const logSpy = vi.spyOn(console, "log");
+
+    await init({ yes: true });
+
+    expect(
+      logSpy.mock.calls.some((call) =>
+        call.some(
+          (value) =>
+            typeof value === "string" &&
+            value.includes("Use `trellis update`"),
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("update preserves spec/tasks/workspace and refreshes templates", async () => {
+    vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+      tools: ["claude", "opencode", "codex"],
+    });
+    await init({});
+
+    const specFile = path.join(tmpDir, ".trellis", "spec", "custom.md");
+    const workspaceFile = path.join(tmpDir, ".trellis", "workspace", "custom.md");
+    const taskDir = path.join(tmpDir, ".trellis", "tasks", "custom-task");
+    const configPath = path.join(tmpDir, ".trellis", "config.yaml");
+    const staleScript = path.join(tmpDir, ".trellis", "scripts", "obsolete.py");
+    const staleClaude = path.join(
+      tmpDir,
+      ".claude",
+      "commands",
+      "trellis",
+      "stale.md",
+    );
+
+    fs.writeFileSync(specFile, "custom spec", "utf-8");
+    fs.writeFileSync(workspaceFile, "workspace note", "utf-8");
+    fs.mkdirSync(taskDir, { recursive: true });
+    fs.writeFileSync(path.join(taskDir, "task.json"), "{}", "utf-8");
+    fs.appendFileSync(configPath, "\n# keep-me\n", "utf-8");
+    fs.writeFileSync(staleScript, "print('stale')", "utf-8");
+    fs.mkdirSync(path.dirname(staleClaude), { recursive: true });
+    fs.writeFileSync(staleClaude, "stale", "utf-8");
+
+    vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+      tools: ["claude", "codex"],
+    });
+
+    await update({});
+
+    expect(fs.existsSync(specFile)).toBe(true);
+    expect(fs.existsSync(workspaceFile)).toBe(true);
+    expect(fs.existsSync(path.join(taskDir, "task.json"))).toBe(true);
+    expect(fs.readFileSync(configPath, "utf-8")).toContain("# keep-me");
+
+    expect(fs.existsSync(staleScript)).toBe(false);
+    expect(fs.existsSync(staleClaude)).toBe(false);
+
+    expect(fs.existsSync(path.join(tmpDir, ".claude"))).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir, ".codex"))).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir, ".opencode"))).toBe(false);
+    expect(
+      fs.existsSync(path.join(tmpDir, ".trellis", "scripts", "task.py")),
+    ).toBe(true);
+    expect(
+      fs.existsSync(path.join(tmpDir, ".trellis", "workflow.md")),
     ).toBe(true);
   });
 });
