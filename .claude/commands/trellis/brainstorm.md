@@ -1,8 +1,8 @@
 # Brainstorm - Requirements Discovery (AI Coding Enhanced)
 
-Guide AI through collaborative requirements discovery **before implementation**, optimized for AI coding workflows:
+Guide AI through collaborative requirements discovery **before task creation and implementation**, optimized for AI coding workflows:
 
-* **Task-first** (capture ideas immediately)
+* **Clarity-first** (settle scope before creating task files)
 * **Action-before-asking** (reduce low-value questions)
 * **Research-first** for technical choices (avoid asking users to invent options)
 * **Diverge → Converge** (expand thinking, then lock MVP)
@@ -22,8 +22,9 @@ Triggered from `/trellis:init` when the user describes a development task, espec
 
 ## Core Principles (Non-negotiable)
 
-1. **Task-first (capture early)**
-   Always ensure a task exists at the start so the user's ideas are recorded immediately.
+1. **No task creation in brainstorm**
+   Do not create tasks, write `prd.md`, or update task files in brainstorm.
+   That belongs to `/trellis:task-create`.
 
 2. **Action before asking**
    If you can derive the answer from repo code, docs, configs, conventions, or quick research — do that first.
@@ -44,23 +45,21 @@ Triggered from `/trellis:init` when the user describes a development task, espec
    Do not ask "should I search?" or "can you paste the code so I can continue?"
    If you need information: search/inspect. If blocked: ask the minimal blocking question.
 
+8. **No implementation in brainstorm**
+   After the requirements are confirmed, stop and hand off to `/trellis:task-create`.
+   Do not implement directly from brainstorm.
+
 ---
 
-## Step 0: Ensure Task Exists (ALWAYS)
+## Step 0: Start With Working Notes (NO FILE WRITES)
 
-Before any Q&A, ensure a task exists. If none exists, create one immediately.
+Keep your own working notes in the conversation while you clarify the requirement.
+Do **not** create a task directory and do **not** write `prd.md` in this command.
 
-* Use a **temporary working title** derived from the user's message.
-* It's OK if the title is imperfect — refine later in PRD.
-
-```bash
-TASK_DIR=$(python3 ./.trellis/scripts/task.py create "brainstorm: <short goal>" --slug <auto>)
-```
-
-Create/seed `prd.md` immediately with what you know:
+Use this structure mentally and in your responses:
 
 ```markdown
-# brainstorm: <short goal>
+# <working title>
 
 ## Goal
 
@@ -108,7 +107,8 @@ Create/seed `prd.md` immediately with what you know:
 
 ## Step 1: Auto-Context (DO THIS BEFORE ASKING QUESTIONS)
 
-Before asking questions like "what does the code look like?", gather context yourself:
+Before asking questions like "what does the code look like?", gather context yourself.
+Keep findings in your working notes and final summary instead of writing files.
 
 ### Repo inspection checklist
 
@@ -122,7 +122,7 @@ Before asking questions like "what does the code look like?", gather context you
 * Look for existing PRDs/specs/templates
 * Look for command usage examples, README, ADRs if any
 
-Write findings into PRD:
+Capture findings in the evolving brainstorm summary:
 
 * Add to `What I already know`
 * Add constraints/links to `Technical Notes`
@@ -133,12 +133,12 @@ Write findings into PRD:
 
 | Complexity   | Criteria                                               | Action                                      |
 | ------------ | ------------------------------------------------------ | ------------------------------------------- |
-| **Trivial**  | Single-line fix, typo, obvious change                  | Skip brainstorm, implement directly         |
-| **Simple**   | Clear goal, 1–2 files, scope well-defined              | Ask 1 confirm question, then implement      |
+| **Trivial**  | Single-line fix, typo, obvious change                  | Converge immediately, summarize clearly, then hand off to `/trellis:task-create` |
+| **Simple**   | Clear goal, 1–2 files, scope well-defined              | Ask at most 1 confirm question, finalize summary, then hand off to `/trellis:task-create` |
 | **Moderate** | Multiple files, some ambiguity                         | Light brainstorm (2–3 high-value questions) |
 | **Complex**  | Vague goal, architectural choices, multiple approaches | Full brainstorm                             |
 
-> Note: Task already exists from Step 0. Classification only affects depth of brainstorming.
+> Note: Classification only affects brainstorming depth. Task creation still happens later in `/trellis:task-create`.
 
 ---
 
@@ -193,7 +193,7 @@ Examples:
 
 ### Research output format (PRD)
 
-Add a section in PRD (either within Technical Notes or as its own):
+Add a section in your working notes or final summary:
 
 ```markdown
 ## Research Notes
@@ -334,7 +334,7 @@ Based on current information, here are 2–3 feasible approaches:
 Which direction do you prefer?
 ```
 
-Record the outcome in PRD as an ADR-lite section:
+Record the outcome in the final brainstorm summary as an ADR-lite section:
 
 ```markdown
 ## Decision (ADR-lite)
@@ -346,7 +346,7 @@ Record the outcome in PRD as an ADR-lite section:
 
 ---
 
-## Step 8: Final Confirmation + Implementation Plan
+## Step 8: Final Confirmation + Task-Creation Handoff
 
 When open questions are resolved, confirm complete requirements with a structured summary:
 
@@ -384,27 +384,14 @@ Here's my understanding of the complete requirements:
 * PR2: <core behavior>
 * PR3: <edge cases + docs + cleanup>
 
-Does this look correct? If yes, I'll proceed with implementation.
+Does this look correct? If yes, I'll stop here and the next step is `/trellis:task-create` to create or update the task and write `prd.md`.
 ```
 
-### Subtask Decomposition (Complex Tasks)
+After approval, stop. Do **not** create task files and do **not** start implementation from brainstorm.
 
-For complex tasks with multiple independent work items, create subtasks:
+## Handoff Target Structure (for `/trellis:task-create`)
 
-```bash
-# Create child tasks
-CHILD1=$(python3 ./.trellis/scripts/task.py create "Child task 1" --slug child1 --parent "$TASK_DIR")
-CHILD2=$(python3 ./.trellis/scripts/task.py create "Child task 2" --slug child2 --parent "$TASK_DIR")
-
-# Or link existing tasks
-python3 ./.trellis/scripts/task.py add-subtask "$TASK_DIR" "$CHILD_DIR"
-```
-
----
-
-## PRD Target Structure (final)
-
-`prd.md` should converge to:
+Your final brainstorm output should give `/trellis:task-create` enough information to write `prd.md`:
 
 ```markdown
 # <Task Title>
@@ -450,31 +437,34 @@ Context / Decision / Consequences
 * Asking user to choose an approach before presenting concrete options
 * Meta questions about whether to research
 * Staying narrowly on the initial request without considering evolution/edges
-* Letting brainstorming drift without updating PRD
+* Letting brainstorming drift without converging to a clear task summary
+* Creating a task or writing `prd.md` from brainstorm
+* Starting implementation directly from brainstorm instead of handing off to `/trellis:task-create`
 
 ---
 
 ## Integration with Start Workflow
 
-After brainstorm completes (Step 8 confirmation approved), the flow continues to the Task Workflow's **Phase 2: Prepare for Implementation**:
+After brainstorm completes (Step 8 confirmation approved), the next required action is `/trellis:task-create`:
 
 ```text
 Brainstorm
-  Step 0: Create task directory + seed PRD
+  Step 0: Gather working notes only
   Step 1–7: Discover requirements, research, converge
   Step 8: Final confirmation → user approves
   ↓
-Task Workflow Phase 2 (Prepare for Implementation)
-  Code-Spec Depth Check (if applicable)
-  → Research codebase (based on confirmed PRD)
-  → Configure code-spec context (jsonl files)
-  → Activate task
+User runs /trellis:task-create
+  → Create or update task shell
+  → Write prd.md
   ↓
-Task Workflow Phase 3 (Execute)
+User runs /trellis:task-start
+  → Activate task
+  → Launch implementation subagent
+  ↓
   Implement → Check → Complete
 ```
 
-The task directory and PRD already exist from brainstorm, so Phase 1 of the Task Workflow is skipped entirely.
+`/trellis:brainstorm` prepares the content. `/trellis:task-create` materializes that content into task files.
 
 ---
 
@@ -483,6 +473,7 @@ The task directory and PRD already exist from brainstorm, so Phase 1 of the Task
 | Command | When to Use |
 |---------|-------------|
 | `/trellis:init` | Entry point that recommends brainstorm |
-| `/trellis:task-create` | Use after requirements are clear |
+| `/trellis:task-create` | Required handoff after brainstorm to create or update task files |
+| `/trellis:task-start` | Start implementation only after a task exists |
 | `/trellis:finish-work` | After implementation is complete |
 | `/trellis:update-spec` | If new patterns emerge during work |

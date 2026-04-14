@@ -103,6 +103,28 @@ describe("getAllCommands", () => {
       expect(cmd.name).not.toContain(".md");
     }
   });
+
+  it("keeps brainstorm as pre-task planning and task-create/task-start as the execution path", () => {
+    const commands = Object.fromEntries(
+      getAllCommands().map((cmd) => [cmd.name, cmd.content]),
+    );
+
+    expect(commands.brainstorm).toContain(
+      "the next step is `/trellis:task-create`",
+    );
+    expect(commands.brainstorm).toContain(
+      "Do **not** create a task directory and do **not** write `prd.md` in this command.",
+    );
+    expect(commands.brainstorm).not.toContain(
+      "If yes, I'll proceed with implementation.",
+    );
+    expect(commands["task-create"]).toContain(
+      "The next command is `/trellis:task-start`",
+    );
+    expect(commands["task-start"]).toContain(
+      "Do **not** skip this command by implementing directly after `/trellis:brainstorm` or `/trellis:task-create`.",
+    );
+  });
 });
 
 // =============================================================================

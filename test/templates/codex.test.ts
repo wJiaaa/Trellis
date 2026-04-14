@@ -53,6 +53,26 @@ describe("codex getAllSkills", () => {
       expect(skill.content).not.toContain('model: "opus"');
     }
   });
+
+  it("keeps brainstorm as pre-task planning and task-create/task-start as the execution path", () => {
+    const skills = Object.fromEntries(
+      getAllSkills().map((skill) => [skill.name, skill.content]),
+    );
+
+    expect(skills.brainstorm).toContain("the next step is `$task-create`");
+    expect(skills.brainstorm).toContain(
+      "Do **not** create a task directory and do **not** write `prd.md` in this skill.",
+    );
+    expect(skills.brainstorm).not.toContain(
+      "If yes, I'll proceed with implementation.",
+    );
+    expect(skills["task-create"]).toContain(
+      "The next command is `$task-start`",
+    );
+    expect(skills["task-start"]).toContain(
+      "Do **not** skip this skill by implementing directly after `$brainstorm` or `$task-create`.",
+    );
+  });
 });
 
 describe("codex getAllAgents", () => {

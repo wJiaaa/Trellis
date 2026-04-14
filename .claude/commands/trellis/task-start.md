@@ -7,7 +7,9 @@ Start a task by activating it and delegating implementation to a dedicated task 
 ## Purpose
 
 This command marks the task as current and hands execution to an isolated implementation agent via `Task(...)`.
+This is the only command that should transition a planned task into implementation.
 
+Do **not** skip this command by implementing directly after `/trellis:brainstorm` or `/trellis:task-create`.
 Do **not** implement the task directly in the current conversation unless delegation is impossible.
 
 ---
@@ -31,6 +33,7 @@ Do **not** implement the task directly in the current conversation unless delega
    )
    ```
 4. Do not continue implementation in the main session after the `Task(...)` call unless delegation is impossible.
+5. If delegation is impossible, stop and explain the blocker explicitly before doing any local implementation.
 
 ## Hook Behavior
 
