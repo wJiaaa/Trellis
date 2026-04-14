@@ -47,6 +47,13 @@ interface DocDefinition {
   content: string;
 }
 
+const initialJournalContent = `# Journal (Part 1)
+
+> AI development session journal
+
+---
+`;
+
 /**
  * Options for creating workflow structure
  */
@@ -107,11 +114,15 @@ export async function createWorkflowStructure(
     configYamlTemplate,
   );
 
-  // Create workspace/ with index.md
+  // Create single-user workspace with index.md + initial journal
   ensureDir(path.join(cwd, PATHS.WORKSPACE));
   await writeFile(
     path.join(cwd, PATHS.WORKSPACE, "index.md"),
     agentProgressIndexContent,
+  );
+  await writeFile(
+    path.join(cwd, PATHS.WORKSPACE, "journal-1.md"),
+    initialJournalContent,
   );
 
   // Create tasks/ directory

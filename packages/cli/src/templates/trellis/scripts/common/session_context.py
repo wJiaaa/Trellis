@@ -21,7 +21,6 @@ from .git import run_git
 from .packages_context import get_packages_section
 from .tasks import iter_active_tasks, load_task, get_all_statuses, children_progress
 from .paths import (
-    DIR_SCRIPTS,
     DIR_SPEC,
     DIR_TASKS,
     DIR_WORKFLOW,
@@ -29,7 +28,6 @@ from .paths import (
     count_lines,
     get_active_journal_file,
     get_current_task,
-    get_developer,
     get_repo_root,
     get_tasks_dir,
 )
@@ -124,17 +122,14 @@ def get_context_json(repo_root: Path | None = None) -> dict:
     if repo_root is None:
         repo_root = get_repo_root()
 
-    developer = get_developer(repo_root)
     tasks_dir = get_tasks_dir(repo_root)
     journal_file = get_active_journal_file(repo_root)
 
     journal_lines = 0
     journal_relative = ""
-    if journal_file and developer:
+    if journal_file:
         journal_lines = count_lines(journal_file)
-        journal_relative = (
-            f"{DIR_WORKFLOW}/{DIR_WORKSPACE}/{developer}/{journal_file.name}"
-        )
+        journal_relative = f"{DIR_WORKFLOW}/{DIR_WORKSPACE}/{journal_file.name}"
 
     # Git info
     _, branch_out, _ = run_git(["branch", "--show-current"], cwd=repo_root)
@@ -171,7 +166,6 @@ def get_context_json(repo_root: Path | None = None) -> dict:
     pkg_git_info = _collect_package_git_info(repo_root)
 
     result = {
-        "developer": developer or "",
         "git": {
             "branch": branch,
             "isClean": is_clean,
@@ -225,19 +219,6 @@ def get_context_text(repo_root: Path | None = None) -> str:
     lines.append("========================================")
     lines.append("SESSION CONTEXT")
     lines.append("========================================")
-    lines.append("")
-
-    developer = get_developer(repo_root)
-
-    # Developer section
-    lines.append("## DEVELOPER")
-    if not developer:
-        lines.append(
-            f"ERROR: Not initialized. Run: python3 ./{DIR_WORKFLOW}/{DIR_SCRIPTS}/init_developer.py <name>"
-        )
-        return "\n".join(lines)
-
-    lines.append(f"Name: {developer}")
     lines.append("")
 
     # Git status
@@ -332,7 +313,7 @@ def get_context_text(repo_root: Path | None = None) -> str:
     journal_file = get_active_journal_file(repo_root)
     if journal_file:
         journal_lines = count_lines(journal_file)
-        relative = f"{DIR_WORKFLOW}/{DIR_WORKSPACE}/{developer}/{journal_file.name}"
+        relative = f"{DIR_WORKFLOW}/{DIR_WORKSPACE}/{journal_file.name}"
         lines.append(f"Active file: {relative}")
         lines.append(f"Line count: {journal_lines} / 2000")
         if journal_lines > 1800:
@@ -349,7 +330,7 @@ def get_context_text(repo_root: Path | None = None) -> str:
 
     # Paths
     lines.append("## PATHS")
-    lines.append(f"Workspace: {DIR_WORKFLOW}/{DIR_WORKSPACE}/{developer}/")
+    lines.append(f"Workspace: {DIR_WORKFLOW}/{DIR_WORKSPACE}/")
     lines.append(f"Tasks: {DIR_WORKFLOW}/{DIR_TASKS}/")
     lines.append(f"Spec: {DIR_WORKFLOW}/{DIR_SPEC}/")
     lines.append("")
@@ -371,7 +352,6 @@ def get_context_record_json(repo_root: Path | None = None) -> dict:
     if repo_root is None:
         repo_root = get_repo_root()
 
-    developer = get_developer(repo_root)
     tasks_dir = get_tasks_dir(repo_root)
 
     # Git info
@@ -417,7 +397,6 @@ def get_context_record_json(repo_root: Path | None = None) -> dict:
     pkg_git_info = _collect_package_git_info(repo_root)
 
     result = {
-        "developer": developer or "",
         "git": {
             "branch": branch,
             "isClean": git_status_count == 0,
@@ -448,13 +427,6 @@ def get_context_text_record(repo_root: Path | None = None) -> str:
     lines.append("SESSION CONTEXT (RECORD MODE)")
     lines.append("========================================")
     lines.append("")
-
-    developer = get_developer(repo_root)
-    if not developer:
-        lines.append(
-            f"ERROR: Not initialized. Run: python3 ./{DIR_WORKFLOW}/{DIR_SCRIPTS}/init_developer.py <name>"
-        )
-        return "\n".join(lines)
 
     # ACTIVE TASKS — first and prominent
     lines.append("## [!!!] ACTIVE TASKS")

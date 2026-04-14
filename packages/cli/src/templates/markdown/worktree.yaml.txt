@@ -21,8 +21,6 @@ copy:
   # Environment variables (uncomment and customize as needed)
   # - .env
   # - .env.local
-  # Workflow config
-  - .trellis/.developer
 
 #-------------------------------------------------------------------------------
 # Post-Create Hooks

@@ -74,8 +74,6 @@ export const multiAgentStatusMonitor = readTemplate(
 );
 
 // Python scripts - main
-export const getDeveloperScript = readTemplate("scripts/get_developer.py");
-export const initDeveloperScript = readTemplate("scripts/init_developer.py");
 export const taskScript = readTemplate("scripts/task.py");
 export const getContextScript = readTemplate("scripts/get_context.py");
 export const addSessionScript = readTemplate("scripts/add_session.py");
@@ -131,8 +129,6 @@ export function getAllScripts(): Map<string, string> {
   scripts.set("multi_agent/status_monitor.py", multiAgentStatusMonitor);
 
   // Main
-  scripts.set("get_developer.py", getDeveloperScript);
-  scripts.set("init_developer.py", initDeveloperScript);
   scripts.set("task.py", taskScript);
   scripts.set("get_context.py", getContextScript);
   scripts.set("add_session.py", addSessionScript);

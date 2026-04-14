@@ -7,7 +7,7 @@ Reads Claude Code session JSON from stdin + Trellis task data from filesystem.
 Outputs 1-2 lines:
   With active task:  [P1] Task title (status)  +  info line
   Without task:      info line only
-Info line: model · ctx% · branch · duration · developer · tasks · rate limits
+Info line: model · ctx% · branch · duration · tasks · rate limits
 """
 from __future__ import annotations
 
@@ -105,16 +105,6 @@ def _count_active_tasks(trellis_dir: Path) -> int:
     return count
 
 
-def _get_developer(trellis_dir: Path) -> str:
-    content = _read_text(trellis_dir / ".developer")
-    if not content:
-        return "unknown"
-    for line in content.splitlines():
-        if line.startswith("name="):
-            return line[5:].strip()
-    return content.splitlines()[0].strip() or "unknown"
-
-
 def _get_git_branch() -> str:
     try:
         result = subprocess.run(
@@ -155,7 +145,6 @@ def main() -> None:
 
     # --- Trellis data ---
     task = _get_current_task(trellis_dir) if trellis_dir else None
-    dev = _get_developer(trellis_dir) if trellis_dir else ""
     task_count = _count_active_tasks(trellis_dir) if trellis_dir else 0
 
     # --- CC session data ---
@@ -179,7 +168,7 @@ def main() -> None:
     else:
         ctx_color = "\033[32m"
 
-    # Build info line: model · ctx · branch · duration · dev · tasks [· rate limits]
+    # Build info line: model · ctx · branch · duration · tasks [· rate limits]
     parts = [
         model_label,
         f"ctx {ctx_color}{ctx_pct}%\033[0m",
@@ -187,8 +176,6 @@ def main() -> None:
     if branch:
         parts.append(f"\033[35m{branch}\033[0m")
     parts.append(duration)
-    if dev:
-        parts.append(f"\033[32m{dev}\033[0m")
     if task_count:
         parts.append(f"{task_count} task(s)")
 

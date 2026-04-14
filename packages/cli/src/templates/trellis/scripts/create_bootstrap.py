@@ -11,9 +11,6 @@ Usage:
 Arguments:
     project-type: frontend | backend | fullstack (default: fullstack)
 
-Prerequisites:
-    - .trellis/.developer must exist (run init_developer.py first)
-
 Creates:
     .trellis/tasks/00-bootstrap-guidelines/
         - task.json    # Task metadata
@@ -29,7 +26,6 @@ from pathlib import Path
 
 from common.paths import (
     DIR_WORKFLOW,
-    DIR_SCRIPTS,
     DIR_TASKS,
     get_repo_root,
     get_developer,
@@ -258,12 +254,6 @@ def main() -> int:
 
     repo_root = get_repo_root()
     developer = get_developer(repo_root)
-
-    # Check developer initialized
-    if not developer:
-        print("Error: Developer not initialized")
-        print(f"Run: python3 ./{DIR_WORKFLOW}/{DIR_SCRIPTS}/init_developer.py <your-name>")
-        return 1
 
     # Resolve spec base path (monorepo: spec/<package>, single-repo: spec)
     package = resolve_package(repo_root=repo_root)

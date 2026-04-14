@@ -108,9 +108,6 @@ def cmd_create(args: argparse.Namespace) -> int:
         package = resolve_package(repo_root=repo_root)
 
     creator = get_developer(repo_root)
-    if not creator:
-        print(colored("Error: No developer set. Run init_developer.py first", Colors.RED), file=sys.stderr)
-        return 1
 
     ensure_tasks_dir(repo_root)
 

@@ -18,7 +18,7 @@ All workflow scripts are written in **Python 3.10+** for cross-platform compatib
 ├── common/               # Shared modules
 │   ├── __init__.py
 │   ├── paths.py          # Path constants and functions
-│   ├── developer.py      # Developer identity management
+│   ├── developer.py      # Workspace bootstrap helpers
 │   ├── task_queue.py     # Task queue CRUD
 │   ├── task_utils.py     # Task helper functions
 │   ├── phase.py          # Multi-agent phase tracking
@@ -37,8 +37,6 @@ All workflow scripts are written in **Python 3.10+** for cross-platform compatib
 │   └── create_pr.py      # Create PR from task
 ├── task.py               # Main task management CLI
 ├── get_context.py        # Session context retrieval
-├── init_developer.py     # Developer initialization
-├── get_developer.py      # Get current developer
 ├── add_session.py        # Session recording
 └── create_bootstrap.py   # Bootstrap task creation
 ```
@@ -318,7 +316,7 @@ Usage:
 
 # In error messages
 print("Usage: python3 task.py <command>")
-print("Run: python3 ./.trellis/scripts/init_developer.py <name>")
+print("Run: python3 ./.trellis/scripts/add_session.py --title \"My Task\"")
 
 # In help text
 print("Next steps:")
@@ -670,7 +668,7 @@ Examples:
 ```python
 # In task.py (root level)
 from common.paths import get_repo_root, DIR_WORKFLOW
-from common.developer import get_developer
+from common.developer import ensure_workspace
 
 # In common/developer.py
 from .paths import get_repo_root, DIR_WORKFLOW
@@ -695,7 +693,7 @@ from pathlib import Path
 
 # 3. Local imports
 from common.paths import get_repo_root
-from common.developer import get_developer
+from common.developer import ensure_workspace
 ```
 
 ---

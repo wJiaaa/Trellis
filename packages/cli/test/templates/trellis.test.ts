@@ -17,8 +17,6 @@ import {
   multiAgentStatus,
   multiAgentCreatePr,
   multiAgentPlan,
-  getDeveloperScript,
-  initDeveloperScript,
   taskScript,
   getContextScript,
   addSessionScript,
@@ -52,8 +50,6 @@ describe("trellis template constants", () => {
     multiAgentStatus,
     multiAgentCreatePr,
     multiAgentPlan,
-    getDeveloperScript,
-    initDeveloperScript,
     taskScript,
     getContextScript,
     addSessionScript,
@@ -74,7 +70,7 @@ describe("trellis template constants", () => {
     const pyScripts = [
       commonInit,
       commonPaths,
-      getDeveloperScript,
+      commonDeveloper,
       taskScript,
     ];
     for (const script of pyScripts) {
@@ -96,7 +92,7 @@ describe("trellis template constants", () => {
   });
 
   it("gitignoreTemplate contains ignore patterns", () => {
-    expect(gitignoreTemplate).toContain(".developer");
+    expect(gitignoreTemplate).toContain(".current-task");
     expect(gitignoreTemplate).toContain("__pycache__");
   });
 });
@@ -116,8 +112,8 @@ describe("getAllScripts", () => {
     expect(scripts.has("__init__.py")).toBe(true);
     expect(scripts.has("common/__init__.py")).toBe(true);
     expect(scripts.has("common/paths.py")).toBe(true);
+    expect(scripts.has("common/developer.py")).toBe(true);
     expect(scripts.has("task.py")).toBe(true);
-    expect(scripts.has("get_developer.py")).toBe(true);
     expect(scripts.has("multi_agent/start.py")).toBe(true);
   });
 

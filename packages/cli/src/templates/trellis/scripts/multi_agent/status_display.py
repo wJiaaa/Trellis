@@ -24,7 +24,7 @@ from pathlib import Path
 from common.cli_adapter import get_cli_adapter
 from common.io import read_json
 from common.log import Colors
-from common.developer import ensure_developer
+from common.developer import ensure_workspace
 from common.paths import (
     get_repo_root,
     get_tasks_dir,
@@ -214,7 +214,7 @@ def cmd_summary(repo_root: Path, filter_assignee: str | None = None) -> int:
     # Import lazily to avoid circular import at module level
     from .status_monitor import get_last_tool, get_last_message
 
-    ensure_developer(repo_root)
+    ensure_workspace(repo_root)
 
     tasks_dir = get_tasks_dir(repo_root)
     if not tasks_dir.is_dir():

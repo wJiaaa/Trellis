@@ -40,7 +40,6 @@ describe("DIR_NAMES", () => {
 
 describe("FILE_NAMES", () => {
   it("has all expected keys", () => {
-    expect(FILE_NAMES).toHaveProperty("DEVELOPER");
     expect(FILE_NAMES).toHaveProperty("CURRENT_TASK");
     expect(FILE_NAMES).toHaveProperty("TASK_JSON");
     expect(FILE_NAMES).toHaveProperty("PRD");
@@ -87,12 +86,6 @@ describe("PATHS", () => {
     expect(PATHS.SCRIPTS).toBe(`${DIR_NAMES.WORKFLOW}/${DIR_NAMES.SCRIPTS}`);
   });
 
-  it("DEVELOPER_FILE is WORKFLOW/.developer", () => {
-    expect(PATHS.DEVELOPER_FILE).toBe(
-      `${DIR_NAMES.WORKFLOW}/${FILE_NAMES.DEVELOPER}`,
-    );
-  });
-
   it("CURRENT_TASK_FILE is WORKFLOW/.current-task", () => {
     expect(PATHS.CURRENT_TASK_FILE).toBe(
       `${DIR_NAMES.WORKFLOW}/${FILE_NAMES.CURRENT_TASK}`,
@@ -113,20 +106,12 @@ describe("PATHS", () => {
 });
 
 // =============================================================================
-// getWorkspaceDir — pure string concatenation
+// getWorkspaceDir — single-user workspace path
 // =============================================================================
 
 describe("getWorkspaceDir", () => {
-  it("returns correct path for developer name", () => {
-    expect(getWorkspaceDir("john")).toBe(".trellis/workspace/john");
-  });
-
-  it("handles hyphenated names", () => {
-    expect(getWorkspaceDir("john-doe")).toBe(".trellis/workspace/john-doe");
-  });
-
-  it("handles empty string", () => {
-    expect(getWorkspaceDir("")).toBe(".trellis/workspace/");
+  it("returns the shared workspace path", () => {
+    expect(getWorkspaceDir()).toBe(".trellis/workspace");
   });
 });
 

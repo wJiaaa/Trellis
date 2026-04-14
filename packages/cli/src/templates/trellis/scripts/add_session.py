@@ -32,10 +32,9 @@ from common.paths import (
     FILE_JOURNAL_PREFIX,
     get_repo_root,
     get_current_task,
-    get_developer,
     get_workspace_dir,
 )
-from common.developer import ensure_developer
+from common.developer import ensure_workspace
 from common.git import run_git
 from common.tasks import load_task
 from common.config import (
@@ -120,13 +119,13 @@ def count_journal_files(dev_dir: Path, active_num: int) -> str:
 
 
 def create_new_journal_file(
-    dev_dir: Path, num: int, developer: str, today: str, max_lines: int = 2000,
+    dev_dir: Path, num: int, today: str, max_lines: int = 2000,
 ) -> Path:
     """Create a new journal file."""
     prev_num = num - 1
     new_file = dev_dir / f"{FILE_JOURNAL_PREFIX}{num}.md"
 
-    content = f"""# Journal - {developer} (Part {num})
+    content = f"""# Journal (Part {num})
 
 > Continuation from `{FILE_JOURNAL_PREFIX}{prev_num}.md` (archived at ~{max_lines} lines)
 > Started: {today}
@@ -357,17 +356,8 @@ def add_session(
 ) -> int:
     """Add a new session."""
     repo_root = get_repo_root()
-    ensure_developer(repo_root)
-
-    developer = get_developer(repo_root)
-    if not developer:
-        print("Error: Developer not initialized", file=sys.stderr)
-        return 1
-
+    ensure_workspace(repo_root)
     dev_dir = get_workspace_dir(repo_root)
-    if not dev_dir:
-        print("Error: Workspace directory not found", file=sys.stderr)
-        return 1
 
     max_lines = get_max_journal_lines(repo_root)
 
@@ -404,7 +394,7 @@ def add_session(
     if current_lines + content_lines > max_lines:
         target_num = current_num + 1
         print(f"[!] Exceeds {max_lines} lines, creating {FILE_JOURNAL_PREFIX}{target_num}.md", file=sys.stderr)
-        target_file = create_new_journal_file(dev_dir, target_num, developer, today, max_lines)
+        target_file = create_new_journal_file(dev_dir, target_num, today, max_lines)
         print(f"Created: {target_file}", file=sys.stderr)
 
     # Append session content

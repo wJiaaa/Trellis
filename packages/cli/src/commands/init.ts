@@ -1,7 +1,5 @@
-import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import readline from "node:readline";
 import chalk from "chalk";
 import figlet from "figlet";
 import inquirer from "inquirer";
@@ -29,62 +27,12 @@ import {
   type DetectedPackage,
 } from "../utils/project-detector.js";
 
-/**
- * Detect available Python command (python3 or python) and verify version >= 3.10
- */
-function getPythonCommand(): string {
-  const MIN_MAJOR = 3;
-  const MIN_MINOR = 10;
-
-  function checkVersion(cmd: string): boolean {
-    try {
-      const output = execSync(`${cmd} --version`, { stdio: "pipe" })
-        .toString()
-        .trim();
-      const match = output.match(/Python (\d+)\.(\d+)/);
-      if (!match) return false;
-      const [, major, minor] = match.map(Number);
-      return major > MIN_MAJOR || (major === MIN_MAJOR && minor >= MIN_MINOR);
-    } catch {
-      return false;
-    }
-  }
-
-  if (checkVersion("python3")) return "python3";
-  if (checkVersion("python")) return "python";
-
-  // Check if Python exists but is too old
-  try {
-    const output = execSync("python3 --version", { stdio: "pipe" })
-      .toString()
-      .trim();
-    console.warn(
-      chalk.yellow(
-        `⚠️  ${output} detected, but Trellis requires Python ≥ 3.10`,
-      ),
-    );
-  } catch {
-    try {
-      const output = execSync("python --version", { stdio: "pipe" })
-        .toString()
-        .trim();
-      console.warn(
-        chalk.yellow(
-          `⚠️  ${output} detected, but Trellis requires Python ≥ 3.10`,
-        ),
-      );
-    } catch {
-      // No Python at all
-    }
-  }
-  return "python3";
-}
-
 // =============================================================================
 // Bootstrap Task Creation
 // =============================================================================
 
 const BOOTSTRAP_TASK_NAME = "00-bootstrap-guidelines";
+const DEFAULT_TASK_OWNER = "owner";
 
 function getBootstrapPrdContent(
   projectType: ProjectType,
@@ -256,7 +204,6 @@ interface TaskJson {
 }
 
 function getBootstrapTaskJson(
-  developer: string,
   projectType: ProjectType,
   packages?: DetectedPackage[],
 ): TaskJson {
@@ -304,8 +251,8 @@ function getBootstrapTaskJson(
     status: "in_progress",
     dev_type: "docs",
     priority: "P1",
-    creator: developer,
-    assignee: developer,
+    creator: DEFAULT_TASK_OWNER,
+    assignee: DEFAULT_TASK_OWNER,
     createdAt: today,
     completedAt: null,
     commit: null,
@@ -323,7 +270,6 @@ function getBootstrapTaskJson(
  */
 function createBootstrapTask(
   cwd: string,
-  developer: string,
   projectType: ProjectType,
   packages?: DetectedPackage[],
 ): boolean {
@@ -340,7 +286,7 @@ function createBootstrapTask(
     fs.mkdirSync(taskDir, { recursive: true });
 
     // Write task.json
-    const taskJson = getBootstrapTaskJson(developer, projectType, packages);
+    const taskJson = getBootstrapTaskJson(projectType, packages);
     fs.writeFileSync(
       path.join(taskDir, FILE_NAMES.TASK_JSON),
       JSON.stringify(taskJson, null, 2),
@@ -368,7 +314,6 @@ function createBootstrapTask(
 async function handleReinit(
   cwd: string,
   options: InitOptions,
-  developerName: string | undefined,
 ): Promise<boolean> {
   const TOOLS = getInitToolChoices();
   const configuredPlatforms = getConfiguredPlatforms(cwd);
@@ -382,17 +327,14 @@ async function handleReinit(
   ).map((t) => t.key);
 
   let doAddPlatforms = explicitTools.length > 0;
-  let doAddDeveloper = !!options.user;
   let platformsToAdd: string[] = explicitTools;
 
   // No explicit flags → show menu
-  if (!doAddPlatforms && !doAddDeveloper) {
+  if (!doAddPlatforms) {
     if (options.yes) {
       console.log(chalk.gray(`Already initialized with: ${configuredNames}`));
       console.log(
-        chalk.gray(
-          "Use platform flags (e.g., --codex) or -u <name> to add platforms/developer.",
-        ),
+        chalk.gray("Use platform flags (e.g., --codex) to add platforms."),
       );
       return true;
     }
@@ -408,10 +350,6 @@ async function handleReinit(
         message: "Trellis is already initialized. What would you like to do?",
         choices: [
           { name: "Add AI platform(s)", value: "add-platform" },
-          {
-            name: "Set up developer identity on this device",
-            value: "add-developer",
-          },
           { name: "Full re-initialize", value: "full" },
         ],
       },
@@ -421,7 +359,6 @@ async function handleReinit(
       return false; // Fall through to full init
     }
     if (action === "add-platform") doAddPlatforms = true;
-    if (action === "add-developer") doAddDeveloper = true;
   }
 
   // --- Add platforms ---
@@ -472,35 +409,6 @@ async function handleReinit(
     }
   }
 
-  // --- Add developer ---
-  if (doAddDeveloper) {
-    let devName = developerName;
-    if (!devName) {
-      devName = await askInput("Your name: ");
-      while (!devName) {
-        console.log(chalk.yellow("Name is required"));
-        devName = await askInput("Your name: ");
-      }
-    }
-
-    try {
-      const pythonCmd = getPythonCommand();
-      const scriptPath = path.join(cwd, PATHS.SCRIPTS, "init_developer.py");
-      execSync(`${pythonCmd} "${scriptPath}" "${devName}"`, {
-        cwd,
-        stdio: "pipe",
-      });
-      console.log(chalk.green(`✓ Developer "${devName}" initialized`));
-    } catch {
-      console.log(
-        chalk.yellow("⚠ Could not initialize developer. Run manually:"),
-      );
-      console.log(
-        chalk.gray(`  python3 .trellis/scripts/init_developer.py ${devName}`),
-      );
-    }
-  }
-
   return true;
 }
 
@@ -509,7 +417,6 @@ interface InitOptions {
   opencode?: boolean;
   codex?: boolean;
   yes?: boolean;
-  user?: string;
   force?: boolean;
   skipExisting?: boolean;
   monorepo?: boolean;
@@ -594,52 +501,14 @@ export async function init(options: InitOptions): Promise<void> {
   }
   setWriteMode(writeMode);
 
-  // Detect developer name from git config or options
-  let developerName = options.user;
-  if (!developerName) {
-    // Only detect from git if current directory is a git repo
-    const isGitRepo = fs.existsSync(path.join(cwd, ".git"));
-    if (isGitRepo) {
-      try {
-        developerName = execSync("git config user.name", {
-          cwd,
-          encoding: "utf-8",
-        }).trim();
-      } catch {
-        // Git not available or no user.name configured
-      }
-    }
-  }
-
-  if (developerName) {
-    console.log(chalk.blue("👤 Developer:"), chalk.gray(developerName));
-  }
-
   // ==========================================================================
   // Re-init fast path: skip full flow when .trellis/ already exists
   // ==========================================================================
 
   if (!isFirstInit && !options.force && !options.skipExisting) {
-    const reinitDone = await handleReinit(cwd, options, developerName);
+    const reinitDone = await handleReinit(cwd, options);
     if (reinitDone) return;
     // reinitDone === false means user chose "full re-initialize" → fall through
-  }
-
-  if (!developerName && !options.yes) {
-    // Ask for developer name if not detected and not in yes mode
-    console.log(
-      chalk.gray(
-        "\nTrellis keeps a personal workspace directory for session continuity:\n" +
-          `  ${PATHS.WORKSPACE}/{name}/\n` +
-          "Tip: Usually this is your git username (git config user.name).\n",
-      ),
-    );
-    developerName = await askInput("Your name: ");
-    while (!developerName) {
-      console.log(chalk.yellow("Name is required"));
-      developerName = await askInput("Your name: ");
-    }
-    console.log(chalk.blue("👤 Developer:"), chalk.gray(developerName));
   }
 
   // Detect project type (silent - no output)
@@ -790,44 +659,13 @@ export async function init(options: InitOptions): Promise<void> {
   // Create root files (skip if exists)
   await createRootFiles(cwd);
 
-  // Initialize developer identity (silent - no output)
-  if (developerName) {
-    try {
-      const pythonCmd = getPythonCommand();
-      const scriptPath = path.join(cwd, PATHS.SCRIPTS, "init_developer.py");
-      execSync(`${pythonCmd} "${scriptPath}" "${developerName}"`, {
-        cwd,
-        stdio: "pipe", // Silent
-      });
-
-      // Create bootstrap task only on first init (not re-init for new platforms/devices)
-      if (isFirstInit) {
-        createBootstrapTask(cwd, developerName, projectType, monorepoPackages);
-      }
-    } catch {
-      // Silent failure - user can run init_developer.py manually
-    }
+  // Create bootstrap task only on first init (not re-init for new platforms/devices)
+  if (isFirstInit) {
+    createBootstrapTask(cwd, projectType, monorepoPackages);
   }
 
   // Print "What We Solve" section
   printWhatWeSolve();
-}
-
-/**
- * Simple readline-based input (no flickering like inquirer)
- */
-function askInput(prompt: string): Promise<string> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question(prompt, (answer) => {
-      rl.close();
-      resolve(answer.trim());
-    });
-  });
 }
 
 async function createRootFiles(cwd: string): Promise<void> {

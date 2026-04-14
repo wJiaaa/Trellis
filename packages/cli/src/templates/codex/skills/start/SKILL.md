@@ -1,6 +1,6 @@
 ---
 name: start
-description: "Initializes an AI development session by reading workflow guides, developer identity, git status, active tasks, and project guidelines from .trellis/. Classifies incoming tasks and routes to brainstorm, direct edit, or task workflow. Use when beginning a new coding session, resuming work, starting a new task, or re-establishing project context."
+description: "Initializes an AI development session by reading workflow guides, workspace context, git status, active tasks, and project guidelines from .trellis/. Classifies incoming tasks and routes to brainstorm, direct edit, or task workflow. Use when beginning a new coding session, resuming work, starting a new task, or re-establishing project context."
 ---
 
 # Start Session
@@ -40,7 +40,7 @@ cat .trellis/workflow.md
 python3 ./.trellis/scripts/get_context.py
 ```
 
-This shows: developer identity, git status, current task (if any), active tasks.
+This shows: workspace context, git status, current task (if any), active tasks.
 
 ### Step 3: Read Guidelines Index
 

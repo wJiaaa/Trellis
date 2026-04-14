@@ -9,7 +9,7 @@
 export const DIR_NAMES = {
   /** Root workflow directory */
   WORKFLOW: ".trellis",
-  /** Workspace directory (under .trellis/) - developer work areas */
+  /** Workspace directory (under .trellis/) - single-user journals and runtime state */
   WORKSPACE: "workspace",
   /** Tasks directory (under .trellis/) - unified task storage */
   TASKS: "tasks",
@@ -23,8 +23,6 @@ export const DIR_NAMES = {
 
 // File names
 export const FILE_NAMES = {
-  /** Developer identity file */
-  DEVELOPER: ".developer",
   /** Current task pointer */
   CURRENT_TASK: ".current-task",
   /** Task metadata */
@@ -49,8 +47,6 @@ export const PATHS = {
   SPEC: `${DIR_NAMES.WORKFLOW}/${DIR_NAMES.SPEC}`,
   /** .trellis/scripts/ */
   SCRIPTS: `${DIR_NAMES.WORKFLOW}/${DIR_NAMES.SCRIPTS}`,
-  /** .trellis/.developer */
-  DEVELOPER_FILE: `${DIR_NAMES.WORKFLOW}/${FILE_NAMES.DEVELOPER}`,
   /** .trellis/.current-task */
   CURRENT_TASK_FILE: `${DIR_NAMES.WORKFLOW}/${FILE_NAMES.CURRENT_TASK}`,
   /** .trellis/workflow.md */
@@ -58,11 +54,11 @@ export const PATHS = {
 } as const;
 
 /**
- * Get developer's workspace directory path
- * @example getWorkspaceDir("john") => ".trellis/workspace/john"
+ * Get the single-user workspace directory path
+ * @example getWorkspaceDir() => ".trellis/workspace"
  */
-export function getWorkspaceDir(developer: string): string {
-  return `${PATHS.WORKSPACE}/${developer}`;
+export function getWorkspaceDir(): string {
+  return PATHS.WORKSPACE;
 }
 
 /**

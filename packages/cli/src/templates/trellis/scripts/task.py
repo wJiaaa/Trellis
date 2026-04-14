@@ -34,7 +34,6 @@ from common.paths import (
     DIR_TASKS,
     FILE_TASK_JSON,
     get_repo_root,
-    get_developer,
     get_tasks_dir,
     get_current_task,
     set_current_task,

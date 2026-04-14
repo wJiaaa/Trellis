@@ -18,26 +18,15 @@
 
 ## Quick Start (Do This First)
 
-### Step 0: Initialize Developer Identity (First Time Only)
+### Step 0: Verify Workspace Files
 
 ```bash
-# Check if already initialized
-python3 ./.trellis/scripts/get_developer.py
-
-# If not initialized, run:
-python3 ./.trellis/scripts/init_developer.py <your-name>
-# Example: python3 ./.trellis/scripts/init_developer.py claude-agent
+ls ./.trellis/workspace/
 ```
 
-This creates:
-- `.trellis/.developer` - Your identity file (gitignored, not committed)
-- `.trellis/workspace/<your-name>/` - Your personal workspace directory
-
-**Naming suggestions**:
-- Human developers: Use your name, e.g., `john-doe`
-- Claude Code: `claude-agent` or `claude-<task>`
-- OpenCode: `opencode-agent` or `opencode-<task>`
-- Codex: `codex-agent` or `codex-<task>`
+You should see at least:
+- `.trellis/workspace/index.md`
+- `.trellis/workspace/journal-1.md`
 
 ### Step 1: Understand Current Context
 
@@ -46,7 +35,7 @@ This creates:
 python3 ./.trellis/scripts/get_context.py
 
 # Or check manually:
-python3 ./.trellis/scripts/get_developer.py      # Your identity
+ls ./.trellis/workspace/                         # Workspace journals
 python3 ./.trellis/scripts/task.py list          # Active tasks
 git status && git log --oneline -10              # Git state
 ```
@@ -98,13 +87,12 @@ cat .trellis/spec/<package>/<layer>/conventions.md
 
 ```
 .trellis/
-|-- .developer           # Developer identity (gitignored)
 |-- scripts/
 |   |-- __init__.py          # Python package init
 |   |-- common/              # Shared utilities (Python)
 |   |   |-- __init__.py
 |   |   |-- paths.py         # Path utilities
-|   |   |-- developer.py     # Developer management
+|   |   |-- developer.py     # Workspace bootstrap helpers
 |   |   +-- git_context.py   # Git context implementation
 |   |-- multi_agent/         # Multi-agent pipeline scripts
 |   |   |-- __init__.py
@@ -112,16 +100,12 @@ cat .trellis/spec/<package>/<layer>/conventions.md
 |   |   |-- status.py        # Monitor agent status
 |   |   |-- create_pr.py     # Create PR
 |   |   +-- cleanup.py       # Cleanup worktree
-|   |-- init_developer.py    # Initialize developer identity
-|   |-- get_developer.py     # Get current developer name
 |   |-- task.py              # Manage tasks
 |   |-- get_context.py       # Get session context
 |   +-- add_session.py       # One-click session recording
-|-- workspace/           # Developer workspaces
-|   |-- index.md         # Workspace index + Session template
-|   +-- {developer}/     # Per-developer directories
-|       |-- index.md     # Personal index (with @@@auto markers)
-|       +-- journal-N.md # Journal files (sequential numbering)
+|-- workspace/           # Single-user journals and runtime files
+|   |-- index.md         # Workspace index (with @@@auto markers)
+|   +-- journal-N.md     # Journal files (sequential numbering)
 |-- tasks/               # Task tracking
 |   +-- {MM}-{DD}-{name}/
 |       +-- task.json
@@ -264,17 +248,15 @@ Use `/trellis:finish-work` command to run through:
 
 ## File Descriptions
 
-### 1. workspace/ - Developer Workspaces
+### 1. workspace/ - Workspace Journal
 
-**Purpose**: Record each AI Agent session's work content
+**Purpose**: Record each AI Agent session's work content in a single shared workspace
 
-**Structure** (Multi-developer support):
+**Structure**:
 ```
 workspace/
-|-- index.md              # Main index (Active Developers table)
-+-- {developer}/          # Per-developer directory
-    |-- index.md          # Personal index (with @@@auto markers)
-    +-- journal-N.md      # Journal files (sequential: 1, 2, 3...)
+|-- index.md              # Session index (with @@@auto markers)
++-- journal-N.md          # Journal files (sequential: 1, 2, 3...)
 ```
 
 **When to update**:

@@ -62,7 +62,6 @@ from .paths import (
     DIR_ARCHIVE,
     DIR_SPEC,
     DIR_SCRIPTS,
-    FILE_DEVELOPER,
     FILE_CURRENT_TASK,
     FILE_TASK_JSON,
     FILE_JOURNAL_PREFIX,

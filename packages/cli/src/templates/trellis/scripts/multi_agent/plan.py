@@ -13,7 +13,7 @@ After completion, use start.py to launch the Dispatch Agent.
 
 Prerequisites:
     - agents/plan.md must exist (in .claude/ or .opencode/)
-    - Developer must be initialized
+    - .trellis/workspace/ must exist
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ import _bootstrap  # noqa: F401 — adds parent scripts/ dir to sys.path
 from common.cli_adapter import get_cli_adapter
 from common.log import Colors, log_info, log_success, log_error
 from common.paths import get_repo_root
-from common.developer import ensure_developer
+from common.developer import ensure_workspace
 
 
 # =============================================================================
@@ -81,7 +81,7 @@ def main() -> int:
             log_info(f"Platform: {platform}")
             return 1
 
-    ensure_developer(project_root)
+    ensure_workspace(project_root)
 
     # =============================================================================
     # Step 1: Create Task Directory

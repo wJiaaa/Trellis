@@ -10,12 +10,6 @@ vi.mock("figlet", () => ({
 vi.mock("inquirer", () => ({
   default: { prompt: vi.fn().mockResolvedValue({}) },
 }));
-
-vi.mock("node:child_process", () => ({
-  execSync: vi.fn().mockReturnValue(""),
-}));
-
-import { execSync } from "node:child_process";
 import { init } from "../../src/commands/init.js";
 import { DIR_NAMES, PATHS } from "../../src/constants/paths.js";
 
@@ -30,7 +24,6 @@ describe("init() integration", () => {
     vi.spyOn(process, "cwd").mockReturnValue(tmpDir);
     vi.spyOn(console, "log").mockImplementation(noop);
     vi.spyOn(console, "error").mockImplementation(noop);
-    vi.mocked(execSync).mockClear();
   });
 
   afterEach(() => {
@@ -44,6 +37,12 @@ describe("init() integration", () => {
     expect(fs.existsSync(path.join(tmpDir, DIR_NAMES.WORKFLOW))).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, PATHS.SCRIPTS))).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, PATHS.WORKSPACE))).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir, PATHS.WORKSPACE, "index.md"))).toBe(
+      true,
+    );
+    expect(
+      fs.existsSync(path.join(tmpDir, PATHS.WORKSPACE, "journal-1.md")),
+    ).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, PATHS.TASKS))).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, PATHS.SPEC))).toBe(true);
 

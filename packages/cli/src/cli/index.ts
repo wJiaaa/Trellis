@@ -22,10 +22,6 @@ program
   .option("--opencode", "Include OpenCode commands")
   .option("--codex", "Include Codex skills")
   .option("-y, --yes", "Skip prompts and use defaults")
-  .option(
-    "-u, --user <name>",
-    "Initialize developer identity with specified name",
-  )
   .option("-f, --force", "Overwrite existing files without asking")
   .option("-s, --skip-existing", "Skip existing files without asking")
   .option("--monorepo", "Force monorepo mode")

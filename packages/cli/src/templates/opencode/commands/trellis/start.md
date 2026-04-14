@@ -35,7 +35,7 @@ cat .trellis/workflow.md
 python3 ./.trellis/scripts/get_context.py
 ```
 
-This shows: developer identity, git status, current task (if any), active tasks.
+This shows: workspace context, git status, current task (if any), active tasks.
 
 ### Step 3: Read Guidelines Index
 

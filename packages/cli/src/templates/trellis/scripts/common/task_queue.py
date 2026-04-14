@@ -6,7 +6,7 @@ Provides:
     list_tasks_by_status   - List tasks by status
     list_pending_tasks     - List tasks with pending status
     list_tasks_by_assignee - List tasks by assignee
-    list_my_tasks          - List tasks assigned to current developer
+    list_my_tasks          - List tasks for the single-user workspace
     get_task_stats         - Get P0/P1/P2/P3 counts
 """
 
@@ -118,7 +118,7 @@ def list_my_tasks(
     filter_status: str | None = None,
     repo_root: Path | None = None
 ) -> list[dict]:
-    """List tasks assigned to current developer.
+    """List tasks for the single-user workspace.
 
     Args:
         filter_status: Optional status filter.
@@ -127,17 +127,12 @@ def list_my_tasks(
     Returns:
         List of task info dicts.
 
-    Raises:
-        ValueError: If developer not set.
     """
     if repo_root is None:
         repo_root = get_repo_root()
 
     developer = get_developer(repo_root)
-    if not developer:
-        raise ValueError("Developer not set")
-
-    return list_tasks_by_assignee(developer, filter_status, repo_root)
+    return list_tasks_by_assignee(developer or "owner", filter_status, repo_root)
 
 
 def get_task_stats(repo_root: Path | None = None) -> dict[str, int]:

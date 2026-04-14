@@ -4,8 +4,8 @@ Common path utilities for Trellis workflow.
 
 Provides:
     get_repo_root          - Get repository root directory
-    get_developer          - Get developer name
-    get_workspace_dir      - Get developer workspace directory
+    get_developer          - Get default task owner name
+    get_workspace_dir      - Get single-user workspace directory
     get_tasks_dir          - Get tasks directory
     get_active_journal_file - Get current journal file
 """
@@ -30,10 +30,12 @@ DIR_SPEC = "spec"
 DIR_SCRIPTS = "scripts"
 
 # File names
-FILE_DEVELOPER = ".developer"
 FILE_CURRENT_TASK = ".current-task"
 FILE_TASK_JSON = "task.json"
 FILE_JOURNAL_PREFIX = "journal-"
+
+# Task metadata
+DEFAULT_TASK_OWNER = "owner"
 
 
 # =============================================================================
@@ -63,47 +65,17 @@ def get_repo_root(start_path: Path | None = None) -> Path:
 
 
 # =============================================================================
-# Developer
+# Task owner / workspace
 # =============================================================================
 
-def get_developer(repo_root: Path | None = None) -> str | None:
-    """Get developer name from .developer file.
-
-    Args:
-        repo_root: Repository root path. Defaults to auto-detected.
-
-    Returns:
-        Developer name or None if not initialized.
-    """
-    if repo_root is None:
-        repo_root = get_repo_root()
-
-    dev_file = repo_root / DIR_WORKFLOW / FILE_DEVELOPER
-
-    if not dev_file.is_file():
-        return None
-
-    try:
-        content = dev_file.read_text(encoding="utf-8")
-        for line in content.splitlines():
-            if line.startswith("name="):
-                return line.split("=", 1)[1].strip()
-    except (OSError, IOError):
-        pass
-
-    return None
+def get_developer(repo_root: Path | None = None) -> str:
+    """Get the default single-user task owner name."""
+    return DEFAULT_TASK_OWNER
 
 
 def check_developer(repo_root: Path | None = None) -> bool:
-    """Check if developer is initialized.
-
-    Args:
-        repo_root: Repository root path. Defaults to auto-detected.
-
-    Returns:
-        True if developer is initialized.
-    """
-    return get_developer(repo_root) is not None
+    """Single-user mode is always considered initialized."""
+    return True
 
 
 # =============================================================================
@@ -128,22 +100,11 @@ def get_tasks_dir(repo_root: Path | None = None) -> Path:
 # Workspace Directory
 # =============================================================================
 
-def get_workspace_dir(repo_root: Path | None = None) -> Path | None:
-    """Get developer workspace directory.
-
-    Args:
-        repo_root: Repository root path. Defaults to auto-detected.
-
-    Returns:
-        Path to workspace directory or None if developer not set.
-    """
+def get_workspace_dir(repo_root: Path | None = None) -> Path:
+    """Get the single-user workspace directory."""
     if repo_root is None:
         repo_root = get_repo_root()
-
-    developer = get_developer(repo_root)
-    if developer:
-        return repo_root / DIR_WORKFLOW / DIR_WORKSPACE / developer
-    return None
+    return repo_root / DIR_WORKFLOW / DIR_WORKSPACE
 
 
 # =============================================================================
@@ -163,7 +124,7 @@ def get_active_journal_file(repo_root: Path | None = None) -> Path | None:
         repo_root = get_repo_root()
 
     workspace_dir = get_workspace_dir(repo_root)
-    if workspace_dir is None or not workspace_dir.is_dir():
+    if not workspace_dir.is_dir():
         return None
 
     latest: Path | None = None
@@ -437,7 +398,7 @@ def get_package_path(package: str, repo_root: Path | None = None) -> Path | None
 if __name__ == "__main__":
     repo = get_repo_root()
     print(f"Repository root: {repo}")
-    print(f"Developer: {get_developer(repo)}")
+    print(f"Task owner: {get_developer(repo)}")
     print(f"Tasks dir: {get_tasks_dir(repo)}")
     print(f"Workspace dir: {get_workspace_dir(repo)}")
     print(f"Journal file: {get_active_journal_file(repo)}")

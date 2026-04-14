@@ -274,7 +274,7 @@ def get_worktree_post_create_hooks(repo_root: Path | None = None) -> list[str]:
 # =============================================================================
 
 def get_agents_dir(repo_root: Path | None = None) -> Path | None:
-    """Get agents directory for current developer.
+    """Get agents directory for the shared workspace.
 
     Args:
         repo_root: Repository root path. Defaults to auto-detected.

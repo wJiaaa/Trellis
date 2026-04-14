@@ -59,13 +59,13 @@
 npm install -g @mindfoldhq/trellis@latest
 
 # 2. Initialize in your repo
-trellis init -u your-name
+trellis init
 
 # 3. Or initialize with the platforms you actually use
-trellis init --opencode --codex -u your-name
+trellis init --opencode --codex
 ```
 
-- `-u your-name` creates `.trellis/workspace/your-name/` for personal journals and session continuity.
+- Trellis now uses a single workspace at `.trellis/workspace/` for journals and session continuity.
 - Platform flags can be mixed and matched. Current options are `--claude`, `--opencode`, and `--codex`.
 - For platform-specific setup, entry commands, and upgrade paths, use the docs:
   [Quick Start](https://docs.trytrellis.app/guide/ch02-quick-start) •
@@ -98,7 +98,7 @@ Trellis keeps the core workflow in `.trellis/` and generates the platform-specif
 .trellis/
 ├── spec/                    # Project standards, patterns, and guides
 ├── tasks/                   # Task PRDs, context files, and status
-├── workspace/               # Journals and developer-specific continuity
+├── workspace/               # Journals and single-user continuity
 ├── workflow.md              # Shared workflow rules
 └── scripts/                 # Utilities that power the workflow
 ```
