@@ -389,10 +389,19 @@ Here's my understanding of the complete requirements:
 * PR2: <core behavior>
 * PR3: <edge cases + docs + cleanup>
 
-Does this look correct? If yes, I'll stop here and the next step is `$task-create` to create or update the task and write `prd.md`.
+Does this look correct?
+
+- If you still have additions or changes, tell me and we'll continue brainstorming.
+- If the scope is settled and you want help creating the task, tell me and I'll continue with `$task-create`.
 ```
 
-After approval, stop. Do **not** create task files and do **not** start implementation from brainstorm.
+After the user approves the summary, ask one explicit next-step question:
+
+- continue brainstorming
+- proceed to task creation
+
+Do **not** create task files until the user explicitly chooses task creation.
+Do **not** start implementation from brainstorm.
 
 ## Handoff Target Structure (for `$task-create`)
 
@@ -445,6 +454,7 @@ Context / Decision / Consequences
 * Letting brainstorming drift without converging to a clear task summary
 * Creating a task or writing `prd.md` from brainstorm
 * Starting implementation directly from brainstorm instead of handing off to `$task-create`
+* Ending brainstorm without asking whether the user wants to continue refining or move into task creation
 
 ---
 
@@ -470,6 +480,7 @@ User runs $task-start
 ```
 
 `$brainstorm` prepares the content. `$task-create` materializes that content into task files.
+`$brainstorm` should proactively ask whether the user wants more brainstorming or wants help moving into `$task-create`.
 
 ---
 

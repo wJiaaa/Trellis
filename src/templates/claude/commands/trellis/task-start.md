@@ -23,7 +23,9 @@ Do **not** implement the task directly in the current conversation unless delega
    ```bash
    python3 ./.trellis/scripts/task.py start <task-name-or-path>
    ```
-3. Launch the implementation subagent explicitly:
+3. `task.py start` will automatically initialize the missing implementation context file from `task.json.dev_type`.
+   If `dev_type` is missing, stop and fix `task.json` first instead of implementing.
+4. Launch the implementation subagent explicitly:
    ```
    Task(
      subagent_type: "implement",
@@ -32,8 +34,8 @@ Do **not** implement the task directly in the current conversation unless delega
      run_in_background: true
    )
    ```
-4. Do not continue implementation in the main session after the `Task(...)` call unless delegation is impossible.
-5. If delegation is impossible, stop and explain the blocker explicitly before doing any local implementation.
+5. Do not continue implementation in the main session after the `Task(...)` call unless delegation is impossible.
+6. If delegation is impossible, stop and explain the blocker explicitly before doing any local implementation.
 
 ## Hook Behavior
 

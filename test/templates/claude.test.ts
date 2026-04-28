@@ -110,19 +110,31 @@ describe("getAllCommands", () => {
     );
 
     expect(commands.brainstorm).toContain(
-      "the next step is `/trellis:task-create`",
+      "Do **not** create a task directory and do **not** write `prd.md` in this command.",
     );
     expect(commands.brainstorm).toContain(
-      "Do **not** create a task directory and do **not** write `prd.md` in this command.",
+      "If you still have additions or changes, tell me and we'll continue brainstorming.",
+    );
+    expect(commands.brainstorm).toContain(
+      "If the scope is settled and you want help creating the task, tell me and I'll continue with `/trellis:task-create`.",
     );
     expect(commands.brainstorm).not.toContain(
       "If yes, I'll proceed with implementation.",
     );
+    expect(commands.brainstorm).toContain(
+      "ask one explicit next-step question",
+    );
     expect(commands["task-create"]).toContain(
       "The next command is `/trellis:task-start`",
     );
+    expect(commands["task-create"]).toContain(
+      "Set `dev_type` to one of `backend | frontend | fullstack | test | docs`",
+    );
     expect(commands["task-start"]).toContain(
       "Do **not** skip this command by implementing directly after `/trellis:brainstorm` or `/trellis:task-create`.",
+    );
+    expect(commands["task-start"]).toContain(
+      "will automatically initialize the missing implementation context file from `task.json.dev_type`",
     );
   });
 });

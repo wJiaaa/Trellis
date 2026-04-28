@@ -16,7 +16,6 @@ import json
 import sys
 from pathlib import Path
 
-from .cli_adapter import get_cli_adapter_auto
 from .config import (
     get_packages,
     is_monorepo,
@@ -61,33 +60,192 @@ def get_implement_frontend(package: str | None = None) -> list[dict]:
     ]
 
 
-def get_check_context(repo_root: Path) -> list[dict]:
-    """Get check context entries."""
-    adapter = get_cli_adapter_auto(repo_root)
-
-    entries = [
-        {"file": adapter.get_trellis_command_path("finish-work"), "reason": "Finish work checklist"},
-        {"file": adapter.get_trellis_command_path("check"), "reason": "Code quality check spec"},
-    ]
-
-    return entries
-
-
-def get_debug_context(repo_root: Path) -> list[dict]:
-    """Get debug context entries."""
-    adapter = get_cli_adapter_auto(repo_root)
-
-    entries: list[dict] = [
-        {"file": adapter.get_trellis_command_path("check"), "reason": "Code quality check spec"},
-    ]
-
-    return entries
-
-
 def _write_jsonl(path: Path, entries: list[dict]) -> None:
     """Write entries to JSONL file."""
     lines = [json.dumps(entry, ensure_ascii=False) for entry in entries]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+CONTEXT_FILE_NAMES = ("implement.jsonl",)
+
+
+def _resolve_context_package(
+    repo_root: Path,
+    target_dir: Path,
+    cli_package: str | None = None,
+) -> tuple[bool, str | None]:
+    """Resolve package for context initialization."""
+    package: str | None = None
+
+    if not is_monorepo(repo_root):
+        if cli_package:
+            print(
+                colored(
+                    "Warning: --package ignored in single-repo project",
+                    Colors.YELLOW,
+                ),
+                file=sys.stderr,
+            )
+        return True, None
+
+    if cli_package:
+        if not validate_package(cli_package, repo_root):
+            packages = get_packages(repo_root)
+            available = ", ".join(sorted(packages.keys())) if packages else "(none)"
+            print(
+                colored(
+                    f"Error: unknown package '{cli_package}'. Available: {available}",
+                    Colors.RED,
+                ),
+                file=sys.stderr,
+            )
+            return False, None
+        return True, cli_package
+
+    task_json_path = target_dir / FILE_TASK_JSON
+    task_pkg_value = None
+    if task_json_path.is_file():
+        task_data = read_json(task_json_path)
+        if isinstance(task_data, dict):
+            task_pkg_value = task_data.get("package")
+
+    task_package = task_pkg_value if isinstance(task_pkg_value, str) else None
+    package = resolve_package(task_package=task_package, repo_root=repo_root)
+
+    if package is None:
+        packages = get_packages(repo_root)
+        available = ", ".join(sorted(packages.keys())) if packages else "(none)"
+        print(
+            colored(
+                f"Error: monorepo project requires --package (or set default_package in config.yaml). Available: {available}",
+                Colors.RED,
+            ),
+            file=sys.stderr,
+        )
+        return False, None
+
+    return True, package
+
+
+def _initialize_context_files(
+    target_dir: Path,
+    repo_root: Path,
+    dev_type: str,
+    cli_package: str | None = None,
+    *,
+    verbose: bool = True,
+    show_next_steps: bool = True,
+) -> int:
+    """Initialize task context files."""
+    ok, package = _resolve_context_package(repo_root, target_dir, cli_package)
+    if not ok:
+        return 1
+
+    if verbose:
+        print(colored("=== Initializing Agent Context Files ===", Colors.BLUE))
+        print(f"Target dir: {target_dir}")
+        print(f"Dev type: {dev_type}")
+        if package:
+            print(f"Package: {package}")
+        print()
+
+    # implement.jsonl
+    if verbose:
+        print(colored("Creating implement.jsonl...", Colors.CYAN))
+    implement_entries = get_implement_base()
+    if dev_type in ("backend", "test"):
+        implement_entries.extend(get_implement_backend(package))
+    elif dev_type == "frontend":
+        implement_entries.extend(get_implement_frontend(package))
+    elif dev_type == "fullstack":
+        implement_entries.extend(get_implement_backend(package))
+        implement_entries.extend(get_implement_frontend(package))
+
+    implement_file = target_dir / "implement.jsonl"
+    _write_jsonl(implement_file, implement_entries)
+    if verbose:
+        print(f"  {colored('✓', Colors.GREEN)} {len(implement_entries)} entries")
+
+    # Update task.json dev_type and package
+    task_json_path = target_dir / FILE_TASK_JSON
+    if task_json_path.is_file():
+        task_data = read_json(task_json_path)
+        if isinstance(task_data, dict):
+            task_data["dev_type"] = dev_type
+            task_data["package"] = package
+            write_json(task_json_path, task_data)
+
+    if verbose:
+        print()
+        print(colored("✓ All context files created", Colors.GREEN))
+        print()
+
+        all_injected = [e["file"] for e in implement_entries]
+        print(colored("Auto-injected (defaults only):", Colors.YELLOW))
+        for f in all_injected:
+            print(f"  - {f}")
+        print()
+
+        spec_base = repo_root / DIR_WORKFLOW / DIR_SPEC
+        if package:
+            spec_base = spec_base / package
+        available_specs: list[str] = []
+        if spec_base.is_dir():
+            for md_file in sorted(spec_base.rglob("*.md")):
+                rel = str(md_file.relative_to(repo_root))
+                if rel not in all_injected:
+                    available_specs.append(rel)
+
+        if available_specs:
+            print(colored("Available spec files (not yet injected):", Colors.BLUE))
+            for spec in available_specs:
+                print(f"  - {spec}")
+            print()
+
+    if show_next_steps:
+        print(colored("Next steps:", Colors.BLUE))
+        print("  1. Review the spec files above and add relevant ones for your task:")
+        print(f"     python3 task.py add-context <dir> implement <spec-path> \"<reason>\"")
+        print("  2. Set as current: python3 task.py start <dir>")
+
+    return 0
+
+
+def ensure_context_files_for_task(target_dir: Path, repo_root: Path) -> int:
+    """Ensure required context files exist before starting a task."""
+    task_json_path = target_dir / FILE_TASK_JSON
+    task_data = read_json(task_json_path)
+
+    if not isinstance(task_data, dict):
+        print(colored(f"Error: task.json not found or invalid at {target_dir}", Colors.RED))
+        return 1
+
+    dev_type = task_data.get("dev_type")
+    if not isinstance(dev_type, str) or not dev_type:
+        print(colored("Error: task.json is missing dev_type", Colors.RED))
+        print("Hint: Set task.json dev_type during task creation (backend|frontend|fullstack|test|docs), then run start again.")
+        return 1
+
+    missing_files = [name for name in CONTEXT_FILE_NAMES if not (target_dir / name).is_file()]
+    if not missing_files:
+        return 0
+
+    print(
+        colored(
+            f"Missing context files detected ({', '.join(missing_files)}). Initializing automatically...",
+            Colors.YELLOW,
+        )
+    )
+    result = _initialize_context_files(
+        target_dir,
+        repo_root,
+        dev_type,
+        verbose=False,
+        show_next_steps=False,
+    )
+    if result == 0:
+        print(colored("✓ Task context files initialized", Colors.GREEN))
+    return result
 
 
 # =============================================================================
@@ -110,121 +268,8 @@ def cmd_init_context(args: argparse.Namespace) -> int:
         print(colored(f"Error: Directory not found: {target_dir}", Colors.RED))
         return 1
 
-    # Resolve package: --package CLI → task.json.package → default_package
     cli_package: str | None = getattr(args, "package", None)
-    package: str | None = None
-    if not is_monorepo(repo_root):
-        # Single-repo: ignore --package, no package prefix
-        if cli_package:
-            print(colored("Warning: --package ignored in single-repo project", Colors.YELLOW), file=sys.stderr)
-    elif cli_package:
-        if not validate_package(cli_package, repo_root):
-            packages = get_packages(repo_root)
-            available = ", ".join(sorted(packages.keys())) if packages else "(none)"
-            print(colored(f"Error: unknown package '{cli_package}'. Available: {available}", Colors.RED), file=sys.stderr)
-            return 1
-        package = cli_package
-    else:
-        # Read task.json.package as inferred source
-        task_json_path = target_dir / FILE_TASK_JSON
-        task_pkg_value = None
-        if task_json_path.is_file():
-            task_data = read_json(task_json_path)
-            if isinstance(task_data, dict):
-                task_pkg_value = task_data.get("package")
-        # Only pass string values to resolve_package (guard against malformed JSON)
-        task_package = task_pkg_value if isinstance(task_pkg_value, str) else None
-        package = resolve_package(task_package=task_package, repo_root=repo_root)
-
-        # Monorepo fallback prohibition
-        if package is None:
-            packages = get_packages(repo_root)
-            available = ", ".join(sorted(packages.keys())) if packages else "(none)"
-            print(colored(
-                f"Error: monorepo project requires --package (or set default_package in config.yaml). Available: {available}",
-                Colors.RED,
-            ), file=sys.stderr)
-            return 1
-
-    print(colored("=== Initializing Agent Context Files ===", Colors.BLUE))
-    print(f"Target dir: {target_dir}")
-    print(f"Dev type: {dev_type}")
-    if package:
-        print(f"Package: {package}")
-    print()
-
-    # implement.jsonl
-    print(colored("Creating implement.jsonl...", Colors.CYAN))
-    implement_entries = get_implement_base()
-    if dev_type in ("backend", "test"):
-        implement_entries.extend(get_implement_backend(package))
-    elif dev_type == "frontend":
-        implement_entries.extend(get_implement_frontend(package))
-    elif dev_type == "fullstack":
-        implement_entries.extend(get_implement_backend(package))
-        implement_entries.extend(get_implement_frontend(package))
-
-    implement_file = target_dir / "implement.jsonl"
-    _write_jsonl(implement_file, implement_entries)
-    print(f"  {colored('✓', Colors.GREEN)} {len(implement_entries)} entries")
-
-    # check.jsonl
-    print(colored("Creating check.jsonl...", Colors.CYAN))
-    check_entries = get_check_context(repo_root)
-    check_file = target_dir / "check.jsonl"
-    _write_jsonl(check_file, check_entries)
-    print(f"  {colored('✓', Colors.GREEN)} {len(check_entries)} entries")
-
-    # debug.jsonl
-    print(colored("Creating debug.jsonl...", Colors.CYAN))
-    debug_entries = get_debug_context(repo_root)
-    debug_file = target_dir / "debug.jsonl"
-    _write_jsonl(debug_file, debug_entries)
-    print(f"  {colored('✓', Colors.GREEN)} {len(debug_entries)} entries")
-
-    # Update task.json dev_type and package
-    task_json_path = target_dir / FILE_TASK_JSON
-    if task_json_path.is_file():
-        task_data = read_json(task_json_path)
-        if isinstance(task_data, dict):
-            task_data["dev_type"] = dev_type
-            task_data["package"] = package  # Always sync to match resolved value
-            write_json(task_json_path, task_data)
-
-    print()
-    print(colored("✓ All context files created", Colors.GREEN))
-    print()
-
-    # Show what was auto-injected
-    all_injected = [e["file"] for e in implement_entries]
-    print(colored("Auto-injected (defaults only):", Colors.YELLOW))
-    for f in all_injected:
-        print(f"  - {f}")
-    print()
-
-    # Scan spec directory for available spec files the AI should consider
-    spec_base = repo_root / DIR_WORKFLOW / DIR_SPEC
-    if package:
-        spec_base = spec_base / package
-    available_specs: list[str] = []
-    if spec_base.is_dir():
-        for md_file in sorted(spec_base.rglob("*.md")):
-            rel = str(md_file.relative_to(repo_root))
-            if rel not in all_injected:
-                available_specs.append(rel)
-
-    if available_specs:
-        print(colored("Available spec files (not yet injected):", Colors.BLUE))
-        for spec in available_specs:
-            print(f"  - {spec}")
-        print()
-
-    print(colored("Next steps:", Colors.BLUE))
-    print("  1. Review the spec files above and add relevant ones for your task:")
-    print(f"     python3 task.py add-context <dir> implement <spec-path> \"<reason>\"")
-    print("  2. Set as current: python3 task.py start <dir>")
-
-    return 0
+    return _initialize_context_files(target_dir, repo_root, dev_type, cli_package)
 
 
 # =============================================================================
@@ -299,7 +344,7 @@ def cmd_validate(args: argparse.Namespace) -> int:
     print()
 
     total_errors = 0
-    for jsonl_name in ["implement.jsonl", "check.jsonl", "debug.jsonl"]:
+    for jsonl_name in CONTEXT_FILE_NAMES:
         jsonl_file = target_dir / jsonl_name
         errors = _validate_jsonl(jsonl_file, repo_root)
         total_errors += errors
@@ -377,7 +422,7 @@ def cmd_list_context(args: argparse.Namespace) -> int:
     print(colored("=== Context Files ===", Colors.BLUE))
     print()
 
-    for jsonl_name in ["implement.jsonl", "check.jsonl", "debug.jsonl"]:
+    for jsonl_name in CONTEXT_FILE_NAMES:
         jsonl_file = target_dir / jsonl_name
         if not jsonl_file.is_file():
             continue

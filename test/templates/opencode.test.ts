@@ -69,16 +69,28 @@ describe("opencode task workflow prompts", () => {
       "utf-8",
     );
 
-    expect(brainstorm).toContain("the next step is `/trellis:task-create`");
     expect(brainstorm).toContain(
       "Do **not** create a task directory and do **not** write `prd.md` in this command.",
+    );
+    expect(brainstorm).toContain(
+      "If you still have additions or changes, tell me and we'll continue brainstorming.",
+    );
+    expect(brainstorm).toContain(
+      "If the scope is settled and you want help creating the task, tell me and I'll continue with `/trellis:task-create`.",
     );
     expect(brainstorm).not.toContain(
       "If yes, I'll proceed with implementation.",
     );
+    expect(brainstorm).toContain("ask one explicit next-step question");
     expect(taskCreate).toContain("The next command is `/trellis:task-start`");
+    expect(taskCreate).toContain(
+      "Set `dev_type` to one of `backend | frontend | fullstack | test | docs`",
+    );
     expect(taskStart).toContain(
       "Do **not** skip this command by implementing directly after `/trellis:brainstorm` or `/trellis:task-create`.",
+    );
+    expect(taskStart).toContain(
+      "will automatically initialize the missing implementation context file from `task.json.dev_type`",
     );
   });
 });

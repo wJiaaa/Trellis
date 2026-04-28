@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -236,5 +237,36 @@ describe("init() integration", () => {
     expect(
       fs.existsSync(path.join(tmpDir, ".trellis", "workflow.md")),
     ).toBe(true);
+  });
+
+  it("task.py start auto-initializes only implement context from task.json dev_type", async () => {
+    await init({ yes: true });
+
+    const taskRel = execFileSync(
+      "python3",
+      ["./.trellis/scripts/task.py", "create", "Auto init context", "--slug", "auto-init-context"],
+      { cwd: tmpDir, encoding: "utf-8" },
+    ).trim();
+    const taskDir = path.join(tmpDir, taskRel);
+    const taskJsonPath = path.join(taskDir, "task.json");
+    const taskJson = JSON.parse(fs.readFileSync(taskJsonPath, "utf-8"));
+    taskJson.dev_type = "backend";
+    fs.writeFileSync(taskJsonPath, JSON.stringify(taskJson, null, 2), "utf-8");
+
+    execFileSync(
+      "python3",
+      ["./.trellis/scripts/task.py", "start", taskRel],
+      { cwd: tmpDir, encoding: "utf-8" },
+    );
+
+    expect(fs.existsSync(path.join(taskDir, "implement.jsonl"))).toBe(true);
+    expect(fs.existsSync(path.join(taskDir, "check.jsonl"))).toBe(false);
+    expect(fs.existsSync(path.join(taskDir, "debug.jsonl"))).toBe(false);
+    expect(
+      fs.readFileSync(path.join(taskDir, "implement.jsonl"), "utf-8"),
+    ).toContain(".trellis/spec/backend/index.md");
+    expect(
+      fs.readFileSync(path.join(tmpDir, ".trellis", ".current-task"), "utf-8").trim(),
+    ).toBe(taskRel);
   });
 });

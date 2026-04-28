@@ -28,16 +28,18 @@ Do **not** implement the task directly in the current conversation unless delega
    ```bash
    python3 ./.trellis/scripts/task.py start <task-name-or-path>
    ```
-3. Read task-specific context:
+3. `task.py start` will automatically initialize the missing implementation context file from `task.json.dev_type`.
+   If `dev_type` is missing, stop and fix `task.json` first instead of implementing.
+4. Read task-specific context:
    - `task.json`
    - `prd.md`
    - any configured task context files
-4. Read the relevant specs for the task:
+5. Read the relevant specs for the task:
    - package/layer indexes
    - checklist-linked spec documents
    - shared guides if needed
-5. Launch a dedicated implementation agent/subagent for this task instead of continuing implementation in the main session.
-6. If delegation is impossible, stop and explain the blocker explicitly before doing any local implementation.
+6. Launch a dedicated implementation agent/subagent for this task instead of continuing implementation in the main session.
+7. If delegation is impossible, stop and explain the blocker explicitly before doing any local implementation.
 
 ---
 

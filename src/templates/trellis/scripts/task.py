@@ -9,7 +9,7 @@ Usage:
     python3 task.py add-context <dir> <file> <path> [reason] # Add jsonl entry
     python3 task.py validate <dir>              # Validate jsonl files
     python3 task.py list-context <dir>          # List jsonl entries
-    python3 task.py start <dir>                 # Set as current task
+    python3 task.py start <dir>                 # Set as current task (auto-inits context if needed)
     python3 task.py finish                      # Clear current task
     python3 task.py set-branch <dir> <branch>   # Set git branch
     python3 task.py set-base-branch <dir> <branch>  # Set PR target branch
@@ -57,6 +57,7 @@ from common.task_context import (
     cmd_add_context,
     cmd_validate,
     cmd_list_context,
+    ensure_context_files_for_task,
 )
 
 
@@ -79,6 +80,9 @@ def cmd_start(args: argparse.Namespace) -> int:
     if not full_path.is_dir():
         print(colored(f"Error: Task not found: {task_input}", Colors.RED))
         print("Hint: Use task name (e.g., 'my-task') or full path (e.g., '.trellis/tasks/01-31-my-task')")
+        return 1
+
+    if ensure_context_files_for_task(full_path, repo_root) != 0:
         return 1
 
     # Convert to relative path for storage
@@ -254,7 +258,7 @@ Usage:
   python3 task.py add-context <dir> <jsonl> <path> [reason]  Add entry to jsonl
   python3 task.py validate <dir>                     Validate jsonl files
   python3 task.py list-context <dir>                 List jsonl entries
-  python3 task.py start <dir>                        Set as current task
+  python3 task.py start <dir>                        Set as current task (auto-inits context if needed)
   python3 task.py finish                             Clear current task
   python3 task.py set-branch <dir> <branch>          Set git branch for multi-agent
   python3 task.py set-scope <dir> <scope>            Set scope for PR title

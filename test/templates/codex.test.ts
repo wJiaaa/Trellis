@@ -59,18 +59,32 @@ describe("codex getAllSkills", () => {
       getAllSkills().map((skill) => [skill.name, skill.content]),
     );
 
-    expect(skills.brainstorm).toContain("the next step is `$task-create`");
     expect(skills.brainstorm).toContain(
       "Do **not** create a task directory and do **not** write `prd.md` in this skill.",
+    );
+    expect(skills.brainstorm).toContain(
+      "If you still have additions or changes, tell me and we'll continue brainstorming.",
+    );
+    expect(skills.brainstorm).toContain(
+      "If the scope is settled and you want help creating the task, tell me and I'll continue with `$task-create`.",
     );
     expect(skills.brainstorm).not.toContain(
       "If yes, I'll proceed with implementation.",
     );
+    expect(skills.brainstorm).toContain(
+      "ask one explicit next-step question",
+    );
     expect(skills["task-create"]).toContain(
       "The next command is `$task-start`",
     );
+    expect(skills["task-create"]).toContain(
+      "Set `dev_type` to one of `backend | frontend | fullstack | test | docs`",
+    );
     expect(skills["task-start"]).toContain(
       "Do **not** skip this skill by implementing directly after `$brainstorm` or `$task-create`.",
+    );
+    expect(skills["task-start"]).toContain(
+      "will automatically initialize the missing implementation context file from `task.json.dev_type`",
     );
   });
 });

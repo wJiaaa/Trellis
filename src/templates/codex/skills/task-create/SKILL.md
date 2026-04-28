@@ -40,10 +40,9 @@ If the requirement is still ambiguous, stop and direct the user to `$brainstorm`
    - Requirements
    - Acceptance Criteria
    - Open questions or constraints
-5. If relevant, initialize task context files:
-   ```bash
-   python3 ./.trellis/scripts/task.py init-context "$TASK_DIR" <backend|frontend|fullstack>
-   ```
+5. Update `task.json` metadata needed for implementation:
+   - Set `dev_type` to one of `backend | frontend | fullstack | test | docs`
+   - Set `package` when the task targets a specific monorepo package
 6. Report the task path back to the user.
 
 ---
@@ -54,4 +53,5 @@ Always end by telling the user:
 
 - The task was created or updated
 - Which task path/name to use next
+- Confirm that `dev_type` has been recorded in `task.json`
 - The next command is `$task-start`
